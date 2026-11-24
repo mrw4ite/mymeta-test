@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyMeta · Super Admin Panel</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .side-active { background: linear-gradient(90deg, rgba(242,101,34,0.18) 0%, rgba(242,101,34,0.03) 100%); color: #FF7A38; border-left: 3px solid #F26522; }
+  </style>
+</head>
+<body class="bg-[#0B0D13] text-gray-100 min-h-screen flex flex-col md:flex-row antialiased">
+
+  <div id="toast" class="fixed bottom-5 right-5 bg-[#F26522] text-white px-5 py-3 rounded-2xl text-xs font-bold shadow-2xl hidden z-50"></div>
+
+  <!-- Dark Executive Sidebar -->
+  <aside class="w-full md:w-64 bg-[#11141D] border-b md:border-b-0 md:border-r border-white/10 p-5 flex flex-col justify-between shrink-0">
+    <div>
+      <div class="flex items-center justify-between mb-8 px-1">
+        <a href="/admin" class="flex items-center gap-2.5 font-extrabold text-xl tracking-tight">
+          <span class="w-8 h-8 rounded-xl bg-[#F26522] text-white flex items-center justify-center text-sm shadow-lg shadow-orange-500/30">M</span>
+          <span>MyMeta <span class="text-[10px] bg-orange-500/20 text-[#FF7A38] px-2 py-0.5 rounded-full ml-1 align-middle">ADMIN</span></span>
+        </a>
+      </div>
+
+      <nav class="space-y-1.5 text-sm font-semibold">
+        <button onclick="switchTab('overview')" id="nav_overview" class="w-full text-left px-4 py-3 rounded-xl side-active transition">📊 Global Overview</button>
+        <button onclick="switchTab('users')" id="nav_users" class="w-full text-left px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition">👥 Users & Plans</button>
+        <button onclick="switchTab('payments')" id="nav_payments" class="w-full text-left px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition flex justify-between items-center"><span>💳 Payments & UPI</span><span id="pendingBadge" class="hidden bg-[#F26522] text-white text-[10px] font-extrabold px-2 py-0.5 rounded-full">0</span></button>
+        <button onclick="switchTab('pages')" id="nav_pages" class="w-full text-left px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition">🚀 All Landing Pages</button>
+        <button onclick="switchTab('channels')" id="nav_channels" class="w-full text-left px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition">✈️ Connected Channels</button>
+        <button onclick="switchTab('logs')" id="nav_logs" class="w-full text-left px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition">⚡ Live CAPI Feed</button>
+      </nav>
+    </div>
+
+    <div class="mt-6 pt-5 border-t border-white/10 space-y-2">
+      <a href="/app" class="block w-full text-center bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold py-2.5 rounded-xl transition">← Back to User App</a>
+      <button onclick="logout()" class="w-full text-center text-xs font-semibold text-red-400 hover:text-red-300 py-2">Logout</button>
+    </div>
+  </aside>
+
+  <!-- Main Admin Workspace -->
+  <main class="flex-1 p-6 md:p-8 overflow-y-auto">
+    <div class="flex flex-wrap justify-between items-center gap-4 mb-8">
+      <div>
+        <h1 id="pageHeading" class="text-2xl md:text-3xl font-extrabold tracking-tight">Global SaaS Overview</h1>
+        <p class="text-xs text-gray-400 mt-1">Real-time control center for all users, subscriptions, pages & Meta CAPI delivery.</p>
+      </div>
+      <button onclick="loadAll()" class="bg-[#F26522] hover:bg-[#d95314] text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-lg shadow-orange-500/20 transition">↻ Refresh Live Data</button>
+    </div>
+
+    <!-- TAB 1: OVERVIEW -->
+    <section id="tab_overview" class="space-y-6">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-[#141824] border border-white/10 p-5 rounded-3xl">
+          <div class="text-xs text-gray-400 font-semibold">Est. Monthly Revenue (MRR)</div>
+          <div id="kpi_mrr" class="text-3xl font-extrabold text-[#FF7A38] mt-1">₹0</div>
+          <div id="kpi_paid" class="text-[11px] text-gray-500 mt-1">0 paid users</div>
+        </div>
+        <div class="bg-[#141824] border border-white/10 p-5 rounded-3xl">
+          <div class="text-xs text-gray-400 font-semibold">Total Users</div>
+          <div id="kpi_users" class="text-3xl font-extrabold text-white mt-1">0</div>
+          <div id="kpi_pages_ch" class="text-[11px] text-gray-500 mt-1">0 pages · 0 channels</div>
+        </div>
+        <div class="bg-[#141824] border border-white/10 p-5 rounded-3xl">
+          <div class="text-xs text-red-400 font-semibold">Fake Clicks Blocked</div>
+          <div id="kpi_fake" class="text-3xl font-extrabold text-red-400 mt-1">0</div>
+          <div id="kpi_real" class="text-[11px] text-gray-500 mt-1">0 real clicks</div>
+        </div>
+        <div class="bg-[#141824] border border-white/10 p-5 rounded-3xl">
+          <div class="text-xs text-emerald-400 font-semibold">Verified CAPI Joins</div>
+          <div id="kpi_joins" class="text-3xl font-extrabold text-emerald-400 mt-1">0</div>
+          <div id="kpi_views" class="text-[11px] text-gray-500 mt-1">0 total page views</div>
+        </div>
+      </div>
+
+      <div class="bg-[#141824] border border-white/10 p-6 rounded-3xl">
+        <h3 class="font-bold text-sm text-gray-200 mb-4">Platform-Wide 7-Day Traffic & CAPI Joins</h3>
+        <div class="h-72"><canvas id="adminChart"></canvas></div>
+      </div>
+    </section>
+
+    <!-- TAB 2: USERS & PLANS -->
+    <section id="tab_users" class="hidden space-y-4">
+      <div class="flex flex-wrap justify-between items-center gap-3">
+        <input id="userSearch" oninput="renderUsers()" placeholder="Search by email or WhatsApp..." class="bg-[#141824] border border-white/10 rounded-xl px-4 py-2.5 text-sm w-full max-w-md focus:outline-none focus:border-[#F26522]" />
+      </div>
+      <div class="bg-[#141824] border border-white/10 rounded-3xl overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-white/5 text-gray-400 uppercase text-[10px]">
+            <tr>
+              <th class="p-4">User / Email</th>
+              <th class="p-4">WhatsApp</th>
+              <th class="p-4">Usage</th>
+              <th class="p-4">Subscription Plan</th>
+              <th class="p-4 text-right">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTbody" class="divide-y divide-white/5"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB: PAYMENTS & UPI SETTINGS -->
+    <section id="tab_payments" class="hidden space-y-6">
+      <div class="bg-[#141824] border border-white/10 rounded-3xl p-6">
+        <h3 class="font-bold text-sm text-white mb-3">Your Receiving UPI Details (Shown in User QR Checkout)</h3>
+        <form id="upiSettingsForm" class="grid sm:grid-cols-3 gap-3">
+          <input id="set_upi_id" required placeholder="UPI ID (e.g. millrun@oksbi)" class="bg-[#0B0D13] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white" />
+          <input id="set_merchant" required placeholder="Merchant Name (e.g. MyMeta SaaS)" class="bg-[#0B0D13] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white" />
+          <button type="submit" class="bg-[#F26522] hover:bg-[#d95314] text-white font-bold rounded-xl text-xs py-2.5">Save UPI Settings ✓</button>
+        </form>
+      </div>
+
+      <div class="bg-[#141824] border border-white/10 rounded-3xl overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-white/5 text-gray-400 uppercase text-[10px]">
+            <tr>
+              <th class="p-4">User Email</th>
+              <th class="p-4">Plan & Amount</th>
+              <th class="p-4">UTR / Ref Number</th>
+              <th class="p-4">Status</th>
+              <th class="p-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsTbody" class="divide-y divide-white/5"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 3: ALL LANDING PAGES -->
+    <section id="tab_pages" class="hidden">
+      <div class="bg-[#141824] border border-white/10 rounded-3xl overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-white/5 text-gray-400 uppercase text-[10px]">
+            <tr>
+              <th class="p-4">Page & URL</th>
+              <th class="p-4">Owner</th>
+              <th class="p-4">Views / Clicks / Blocked / Joins</th>
+              <th class="p-4 text-right">Action</th>
+            </tr>
+          </thead>
+          <tbody id="pagesTbody" class="divide-y divide-white/5"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 4: CONNECTED CHANNELS -->
+    <section id="tab_channels" class="hidden">
+      <div class="bg-[#141824] border border-white/10 rounded-3xl overflow-x-auto">
+        <table class="w-full text-left text-xs">
+          <thead class="bg-white/5 text-gray-400 uppercase text-[10px]">
+            <tr>
+              <th class="p-4">Channel Name & ID</th>
+              <th class="p-4">Meta Pixel & Event</th>
+              <th class="p-4">Owner</th>
+            </tr>
+          </thead>
+          <tbody id="channelsTbody" class="divide-y divide-white/5"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- TAB 5: LIVE CAPI FEED -->
+    <section id="tab_logs" class="hidden grid lg:grid-cols-2 gap-5">
+      <div class="bg-[#141824] border border-white/10 rounded-3xl p-5">
+        <h3 class="font-bold text-sm mb-4 text-emerald-400">Latest Verified Telegram Joins (CAPI)</h3>
+        <div id="feedJoins" class="space-y-2 text-xs"></div>
+      </div>
+      <div class="bg-[#141824] border border-white/10 rounded-3xl p-5">
+        <h3 class="font-bold text-sm mb-4 text-blue-400">Latest Clicks & Anti-Fraud Blocks</h3>
+        <div id="feedClicks" class="space-y-2 text-xs"></div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    let allUsers = [], adminChart = null;
+
+    function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 2600); }
+    async function logout() { await fetch('/api/auth/logout', { method: 'POST' }); window.location.href = '/app'; }
+
+    function switchTab(tab) {
+      ['overview', 'users', 'payments', 'pages', 'channels', 'logs'].forEach(t => {
+        document.getElementById('tab_' + t).classList.toggle('hidden', t !== tab);
+        document.getElementById('nav_' + t).className = t === tab
+          ? 'w-full text-left px-4 py-3 rounded-xl side-active transition'
+          : 'w-full text-left px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 transition';
+      });
+      const titles = { overview: 'Global SaaS Overview', users: 'Users & Subscription Plans', payments: 'UPI Payments & UTR Approvals', pages: 'All Platform Landing Pages', channels: 'All Connected Telegram Channels', logs: 'Live Global CAPI & Click Feed' };
+      document.getElementById('pageHeading').innerText = titles[tab];
+    }
+
+    async function loadAll() {
+      const ovRes = await fetch('/api/admin/overview');
+      if (ovRes.status === 401 || ovRes.status === 403) {
+        alert('Admin access required! Please login as Admin.');
+        window.location.href = '/app';
+        return;
+      }
+      const ov = await ovRes.json();
+      const [uRes, pRes, cRes, payRes] = await Promise.all([fetch('/api/admin/users'), fetch('/api/admin/pages'), fetch('/api/admin/channels'), fetch('/api/admin/payments')]);
+      allUsers = await uRes.json();
+      const pages = await pRes.json();
+      const channels = await cRes.json();
+      const payData = await payRes.json();
+
+      document.getElementById('kpi_mrr').innerText = '₹' + ov.mrr.toLocaleString('en-IN');
+      document.getElementById('kpi_paid').innerText = `${ov.paid_users} active paid user(s)`;
+      document.getElementById('kpi_users').innerText = ov.total_users;
+      document.getElementById('kpi_pages_ch').innerText = `${ov.total_pages} pages · ${ov.total_channels} channels`;
+      document.getElementById('kpi_fake').innerText = ov.total_fake;
+      document.getElementById('kpi_real').innerText = `${ov.total_real} verified real clicks`;
+      document.getElementById('kpi_joins').innerText = ov.total_joins;
+      document.getElementById('kpi_views').innerText = `${ov.total_views} total page views`;
+
+      renderChart(ov);
+      renderUsers();
+      renderPages(pages);
+      renderChannels(channels);
+      renderLogs(ov);
+      renderPayments(payData);
+    }
+
+    function renderChart(ov) {
+      const ctx = document.getElementById('adminChart').getContext('2d');
+      if (adminChart) adminChart.destroy();
+      adminChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: ov.labels,
+          datasets: [
+            { label: 'Real Clicks', data: ov.real_series, borderColor: '#3b82f6', backgroundColor: 'rgba(59,130,246,0.1)', fill: true, tension: 0.35 },
+            { label: 'Fake Blocked', data: ov.fake_series, borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.1)', fill: true, tension: 0.35 },
+            { label: 'CAPI Joins', data: ov.join_series, borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.12)', fill: true, tension: 0.35 }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#9ca3af' } } },
+          scales: {
+            x: { ticks: { color: '#9ca3af' }, grid: { color: 'rgba(255,255,255,0.05)' } },
+            y: { beginAtZero: true, ticks: { color: '#9ca3af', precision: 0 }, grid: { color: 'rgba(255,255,255,0.05)' } }
+          }
+        }
+      });
+    }
+
+    function renderUsers() {
+      const q = (document.getElementById('userSearch').value || '').toLowerCase();
+      const list = allUsers.filter(u => u.email.toLowerCase().includes(q) || (u.whatsapp || '').includes(q));
+      document.getElementById('usersTbody').innerHTML = list.map(u => `
+        <tr class="hover:bg-white/[0.02]">
+          <td class="p-4">
+            <div class="font-bold text-white">${u.email} ${u.is_admin ? '<span class="ml-1 bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full text-[10px]">ADMIN</span>' : ''} ${u.is_banned ? '<span class="ml-1 bg-red-500/20 text-red-400 px-2 py-0.5 rounded-full text-[10px]">BANNED</span>' : ''}</div>
+          </td>
+          <td class="p-4">${u.whatsapp ? `<a href="https://wa.me/91${u.whatsapp.replace(/\D/g,'')}" target="_blank" class="text-emerald-400 hover:underline font-semibold">+91 ${u.whatsapp}</a>` : '<span class="text-gray-500">-</span>'}</td>
+          <td class="p-4 text-gray-300">${u.used_pages}/${u.page_limit} pages · ${u.channels} ch</td>
+          <td class="p-4">
+            <select onchange="setPlan('${u.id}', this.value)" class="bg-[#0B0D13] border border-white/15 rounded-lg px-2.5 py-1.5 text-xs font-bold text-white">
+              <option value="free" ${u.plan==='free'?'selected':''}>Free (2)</option>
+              <option value="starter" ${u.plan==='starter'?'selected':''}>Starter ₹1,999 (2)</option>
+              <option value="agency" ${u.plan==='agency'?'selected':''}>Growth ₹4,999 (8)</option>
+              <option value="enterprise" ${u.plan==='enterprise'?'selected':''}>Pro ₹14,999 (50)</option>
+            </select>
+          </td>
+          <td class="p-4 text-right space-x-2">
+            ${!u.is_admin ? `<button onclick="toggleBan('${u.id}', ${!u.is_banned})" class="px-3 py-1.5 rounded-lg border border-white/15 text-[11px] font-bold ${u.is_banned ? 'text-emerald-400' : 'text-yellow-400'}">${u.is_banned ? 'Unban' : 'Ban'}</button>
+            <button onclick="deleteUser('${u.id}')" class="px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 text-[11px] font-bold hover:bg-red-500/10">Delete</button>` : '<span class="text-gray-500">Protected</span>'}
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderPages(pages) {
+      document.getElementById('pagesTbody').innerHTML = pages.map(p => `
+        <tr class="hover:bg-white/[0.02]">
+          <td class="p-4">
+            <div class="font-bold text-white">${p.title} <span class="ml-1 text-[10px] bg-white/10 px-2 py-0.5 rounded">${p.mode}</span></div>
+            <a href="${p.live_url}" target="_blank" class="text-[#FF7A38] hover:underline">${p.live_url}</a>
+          </td>
+          <td class="p-4 text-gray-300">${p.owner}</td>
+          <td class="p-4"><span class="text-gray-300">${p.views}v</span> · <span class="text-blue-400">${p.real_clicks}c</span> · <span class="text-red-400">${p.fake_clicks}b</span> · <span class="text-emerald-400 font-bold">${p.joins} joins</span></td>
+          <td class="p-4 text-right"><button onclick="deleteAdminPage('${p.id}')" class="px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 text-[11px] font-bold">Delete</button></td>
+        </tr>
+      `).join('') || '<tr><td colspan="4" class="p-6 text-center text-gray-500">No pages yet.</td></tr>';
+    }
+
+    function renderChannels(channels) {
+      document.getElementById('channelsTbody').innerHTML = channels.map(c => `
+        <tr class="hover:bg-white/[0.02]">
+          <td class="p-4"><div class="font-bold text-white">${c.name}</div><div class="text-gray-400">${c.channel_id}</div></td>
+          <td class="p-4"><div class="text-gray-200">${c.pixel_id}</div><span class="bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded text-[10px] font-bold">${c.event}</span></td>
+          <td class="p-4 text-gray-300">${c.owner}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="3" class="p-6 text-center text-gray-500">No channels connected.</td></tr>';
+    }
+
+    function renderLogs(ov) {
+      document.getElementById('feedJoins').innerHTML = ov.recent_joins.map(j => `
+        <div class="bg-white/5 border border-white/10 p-3 rounded-xl">
+          <div class="flex justify-between"><b>TG User #${j.tg_user_id}</b><span class="${j.capi_sent ? 'text-emerald-400' : 'text-red-400'} font-bold">${j.capi_sent ? 'CAPI FIRED ✓' : 'FAILED'}</span></div>
+          ${!j.capi_sent && j.capi_response ? `<div class="text-[10px] text-red-400 mt-1 break-all">${j.capi_response}</div>` : ''}
+        </div>
+      `).join('') || '<div class="text-gray-500">No joins yet.</div>';
+
+      document.getElementById('feedClicks').innerHTML = ov.recent_clicks.map(c => `
+        <div class="bg-white/5 border border-white/10 p-3 rounded-xl flex justify-between">
+          <span>${c.ip} <span class="text-gray-500">(${c.campaign})</span></span>
+          <span class="${c.is_fake ? 'text-red-400 font-bold' : 'text-blue-400 font-bold'}">${c.is_fake ? 'FAKE BLOCKED' : 'REAL CLICK'}</span>
+        </div>
+      `).join('') || '<div class="text-gray-500">No clicks yet.</div>';
+    }
+
+    async function setPlan(user_id, plan) {
+      await fetch('/api/admin/set-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id, plan }) });
+      showToast('Plan updated ✓'); loadAll();
+    }
+    async function toggleBan(user_id, is_banned) {
+      await fetch('/api/admin/toggle-ban', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id, is_banned }) });
+      showToast(is_banned ? 'User banned' : 'User unbanned ✓'); loadAll();
+    }
+    async function deleteUser(uid) {
+      if (!confirm('Delete user and all their pages?')) return;
+      await fetch(`/api/admin/users/${uid}`, { method: 'DELETE' });
+      showToast('User deleted'); loadAll();
+    }
+    async function deleteAdminPage(pid) {
+      if (!confirm('Delete this landing page?')) return;
+      await fetch(`/api/admin/pages/${pid}`, { method: 'DELETE' });
+      showToast('Page deleted'); loadAll();
+    }
+
+    function renderPayments(payData) {
+      document.getElementById('set_upi_id').value = payData.upi_id || '';
+      document.getElementById('set_merchant').value = payData.merchant_name || '';
+      const pendingCount = payData.payments.filter(x => x.status === 'pending').length;
+      const badge = document.getElementById('pendingBadge');
+      if (pendingCount > 0) { badge.innerText = pendingCount; badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
+
+      document.getElementById('paymentsTbody').innerHTML = payData.payments.map(p => `
+        <tr class="hover:bg-white/[0.02]">
+          <td class="p-4 font-bold text-white">${p.email}</td>
+          <td class="p-4"><span class="uppercase font-bold text-[#FF7A38]">${p.plan}</span> · ₹${p.amount.toLocaleString('en-IN')}</td>
+          <td class="p-4 font-mono text-gray-200">${p.utr}</td>
+          <td class="p-4"><span class="px-2.5 py-1 rounded-full text-[10px] font-bold ${p.status==='approved'?'bg-emerald-500/20 text-emerald-300':p.status==='rejected'?'bg-red-500/20 text-red-400':'bg-amber-500/20 text-amber-300'}">${p.status.toUpperCase()}</span></td>
+          <td class="p-4 text-right space-x-2">
+            ${p.status === 'pending' ? `
+              <button onclick="payAction('${p.id}', 'approve')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-lg text-[11px] font-bold">Approve ✓</button>
+              <button onclick="payAction('${p.id}', 'reject')" class="border border-red-500/40 text-red-400 px-3 py-1.5 rounded-lg text-[11px] font-bold">Reject ✕</button>
+            ` : '<span class="text-gray-500">Processed</span>'}
+          </td>
+        </tr>
+      `).join('') || '<tr><td colspan="5" class="p-6 text-center text-gray-500">No payment requests yet.</td></tr>';
+    }
+
+    async function payAction(pid, action) {
+      await fetch(`/api/admin/payments/${pid}/action`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action }) });
+      showToast(action === 'approve' ? 'Payment Approved & Plan Activated (30 Days) ✓' : 'Payment Rejected');
+      loadAll();
+    }
+
+    document.getElementById('upiSettingsForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await fetch('/api/admin/settings/upi', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ upi_id: document.getElementById('set_upi_id').value, merchant_name: document.getElementById('set_merchant').value })
+      });
+      showToast('UPI Settings Saved ✓');
+    });
+
+    loadAll();
+  </script>
+</body>
+</html>

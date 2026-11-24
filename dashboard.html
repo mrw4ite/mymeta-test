@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyMeta · Smart Page Builder & Meta CAPI</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .tab-pill-active { background: #F0EFEA; color: #111827; font-weight: 700; }
+    .tpl-selected { border-color: #F26522 !important; box-shadow: 0 0 0 2px rgba(242,101,34,0.2); }
+  </style>
+</head>
+<body class="bg-[#F9F8F4] text-gray-900 min-h-screen">
+
+  <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white px-5 py-3 rounded-2xl text-xs font-semibold shadow-2xl hidden z-[100]"></div>
+
+  <!-- AUTH SCREEN (Exact PageBanao Signup/Login + Logged In Animation) -->
+  <div id="authScreen" class="min-h-screen flex items-center justify-center p-4 hidden">
+    <div id="authCard" class="bg-white max-w-md w-full rounded-3xl shadow-xl p-7 border border-gray-200/70">
+      <div class="flex justify-center mb-4">
+        <span class="inline-flex items-center gap-1.5 bg-[#F5F4EE] text-xs font-bold px-3.5 py-1.5 rounded-full">
+          <span class="w-4 h-4 rounded-full bg-green-600 text-white text-[10px] flex items-center justify-center">✓</span>
+          Free plan · No credit card needed
+        </span>
+      </div>
+      <div class="text-center mb-5">
+        <h2 id="authHeading" class="text-2xl font-extrabold">Log in to MyMeta</h2>
+        <p class="text-xs text-gray-500 mt-1">Manage your Smart Tracking pages & Meta CAPI</p>
+      </div>
+      <div class="flex bg-[#F5F4EE] p-1 rounded-xl mb-5 text-xs font-bold">
+        <button id="tabLogin" onclick="switchAuthTab('login')" class="flex-1 py-2 rounded-lg bg-white shadow-sm">Log in</button>
+        <button id="tabReg" onclick="switchAuthTab('register')" class="flex-1 py-2 rounded-lg text-gray-500">Create free account</button>
+      </div>
+      <form id="authForm" class="space-y-3.5">
+        <div id="waWrap" class="hidden">
+          <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1">WhatsApp Number (optional)</label>
+          <div class="flex border border-orange-300 rounded-xl overflow-hidden">
+            <span class="bg-[#F9F8F4] px-3 py-2.5 text-sm font-bold text-gray-700 border-r">+91</span>
+            <input id="auth_wa" type="tel" placeholder="98765 43210" class="w-full px-3 py-2.5 text-sm focus:outline-none" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Work or Personal Email</label>
+          <input id="auth_email" type="email" required placeholder="you@example.com" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm" />
+        </div>
+        <div>
+          <label class="block text-[11px] font-bold text-gray-500 uppercase mb-1">Password</label>
+          <div class="relative">
+            <input id="auth_pass" type="password" required placeholder="At least 6 characters" class="w-full border border-gray-300 rounded-xl px-4 py-2.5 text-sm pr-14" />
+            <button type="button" onclick="const p=document.getElementById('auth_pass'); p.type=p.type==='password'?'text':'password'; this.innerText=p.type==='password'?'Show':'Hide';"
+              class="absolute right-3 top-2.5 text-xs font-bold text-gray-500">Show</button>
+          </div>
+        </div>
+        <div id="auth_err" class="text-red-600 text-xs hidden"></div>
+        <button type="submit" id="auth_btn" class="w-full bg-[#F26522] hover:bg-[#d95314] text-white font-bold py-3.5 rounded-full text-sm shadow-lg shadow-orange-500/25">Log in →</button>
+      </form>
+    </div>
+
+    <!-- Animated Logged In! Card -->
+    <div id="loggedInCard" class="hidden bg-white max-w-sm w-full rounded-3xl shadow-xl p-8 border border-gray-200 text-center">
+      <div class="w-14 h-14 rounded-full bg-green-50 border-2 border-green-500 text-green-600 flex items-center justify-center text-2xl mx-auto mb-4">✓</div>
+      <h3 class="text-2xl font-extrabold">Logged in!</h3>
+      <p class="text-xs text-gray-500 mt-1 mb-5">Opening your MyMeta dashboard...</p>
+      <div class="w-full bg-gray-100 h-2 rounded-full overflow-hidden"><div class="bg-[#F26522] h-full w-2/3 animate-pulse rounded-full"></div></div>
+    </div>
+  </div>
+
+  <!-- WORKSPACE APP (Exact PageBanao Top-Nav Style) -->
+  <div id="appScreen" class="hidden min-h-screen flex flex-col">
+    <header class="bg-white border-b border-gray-200/80 sticky top-0 z-20">
+      <div class="max-w-6xl mx-auto px-5 py-3.5 flex flex-wrap justify-between items-center gap-3">
+        <a href="/" class="flex items-center gap-2 font-extrabold text-xl">
+          <span class="w-8 h-8 rounded-xl bg-[#F26522] text-white flex items-center justify-center text-sm">M</span>
+          <span>MyMeta<span class="text-[#F26522]">.</span></span>
+        </a>
+
+        <div class="flex items-center gap-1.5 text-xs sm:text-sm">
+          <button onclick="switchSection('overview')" id="nav_overview" class="px-3.5 py-2 rounded-xl tab-pill-active">Overview</button>
+          <button onclick="switchSection('pages')" id="nav_pages" class="px-3.5 py-2 rounded-xl text-gray-600 hover:bg-gray-100">Build your landing page</button>
+          <button onclick="switchSection('channels')" id="nav_channels" class="px-3.5 py-2 rounded-xl text-gray-600 hover:bg-gray-100">⚡ Tracking</button>
+          <button onclick="switchSection('utm')" id="nav_utm" class="px-3.5 py-2 rounded-xl text-gray-600 hover:bg-gray-100">🎯 UTM Campaigns</button>
+          <button onclick="switchSection('broadcast')" id="nav_broadcast" class="px-3.5 py-2 rounded-xl text-gray-600 hover:bg-gray-100">📢 Broadcast</button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <span id="planBadge" class="hidden sm:inline-block bg-orange-50 text-[#F26522] text-[11px] font-bold px-3 py-1.5 rounded-full"></span>
+          <button id="adminBtn" onclick="window.location.href='/admin'" class="hidden bg-purple-100 text-purple-700 text-xs font-bold px-3 py-1.5 rounded-xl">Admin</button>
+          <button onclick="openBillingModal()" class="text-xs font-bold border px-3 py-1.5 rounded-xl hover:bg-gray-50">Upgrade</button>
+          <button onclick="logout()" class="text-xs font-semibold text-gray-400 hover:text-red-600 px-2">Logout</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-6xl w-full mx-auto px-5 py-8 flex-1">
+      <div id="renewalBanner" class="hidden mb-6 bg-amber-50 border border-amber-300 text-amber-900 rounded-2xl p-4 flex flex-wrap justify-between items-center gap-3 text-xs font-semibold">
+        <span id="renewalText"></span>
+        <button onclick="openBillingModal()" class="bg-[#F26522] text-white px-4 py-2 rounded-xl font-bold">Renew Now →</button>
+      </div>
+
+      <!-- SECTION 1: OVERVIEW -->
+      <section id="sec_overview" class="space-y-6">
+        <div class="flex flex-wrap justify-between items-end gap-4">
+          <div>
+            <div class="text-xs text-gray-400 font-medium mb-1">Workspace / Overview</div>
+            <h1 class="text-3xl font-extrabold tracking-tight">Live Performance & Anti-Fraud</h1>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="openModal('channelModal')" class="bg-white border border-gray-300 px-4 py-2.5 rounded-xl text-xs font-bold">+ Connect channel</button>
+            <button onclick="openModal('newPageModal')" class="bg-[#F26522] text-white px-4 py-2.5 rounded-xl text-xs font-bold shadow-sm">+ New landing page</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-white p-5 rounded-2xl border border-gray-200/80"><div class="text-xs text-gray-500">Page Views</div><div id="kpi_views" class="text-3xl font-extrabold mt-1">0</div></div>
+          <div class="bg-white p-5 rounded-2xl border border-gray-200/80"><div class="text-xs text-blue-600">Real Clicks</div><div id="kpi_real" class="text-3xl font-extrabold text-blue-700 mt-1">0</div></div>
+          <div class="bg-white p-5 rounded-2xl border border-gray-200/80"><div class="text-xs text-red-500">Fake Blocked</div><div id="kpi_fake" class="text-3xl font-extrabold text-red-600 mt-1">0</div></div>
+          <div class="bg-white p-5 rounded-2xl border border-gray-200/80"><div class="text-xs text-green-600">Verified TG Joins (CAPI)</div><div id="kpi_joins" class="text-3xl font-extrabold text-green-700 mt-1">0</div></div>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl border border-gray-200/80">
+          <h3 class="font-bold text-sm mb-4">Last 7 Days Activity</h3>
+          <div class="h-64"><canvas id="trafficChart"></canvas></div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: BUILD YOUR LANDING PAGE -->
+      <section id="sec_pages" class="hidden space-y-5">
+        <div class="flex flex-wrap justify-between items-start gap-4">
+          <div>
+            <div class="text-xs text-gray-400 font-medium mb-1">Workspace / Landing pages</div>
+            <h1 class="text-3xl font-extrabold tracking-tight">Your ideas, taking shape.</h1>
+            <p class="text-xs text-gray-500 mt-1">Create, edit and publish your community's next home.</p>
+          </div>
+          <button onclick="openModal('newPageModal')" class="bg-[#F26522] hover:bg-[#d95314] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm">+ Create a page</button>
+        </div>
+        <input id="pageSearch" oninput="renderPages()" placeholder="Search your landing pages..." class="w-full max-w-md bg-white border border-gray-200 rounded-xl px-4 py-2.5 text-sm" />
+        <div id="pagesGrid" class="grid md:grid-cols-2 gap-5"></div>
+      </section>
+
+      <!-- SECTION 3: CREATE TRACKING SYSTEM (Exact PageBanao UI) -->
+      <section id="sec_channels" class="hidden space-y-6">
+        <div class="flex flex-wrap justify-between items-start gap-4">
+          <div>
+            <div class="text-xs text-gray-400 font-medium mb-1">Workspace / Tracking connections</div>
+            <h1 class="text-3xl font-extrabold tracking-tight">Know what happens after the click.</h1>
+            <p class="text-sm text-gray-500 mt-1">Connect Telegram and Meta. Track real requests with a clear delivery trail.</p>
+          </div>
+          <button onclick="openModal('channelModal')" class="bg-[#F26522] hover:bg-[#d95314] text-white px-5 py-2.5 rounded-xl text-sm font-bold shadow-sm">+ Connect your channel</button>
+        </div>
+
+        <div class="bg-[#FFFBEB] border border-[#FDE68A] text-[#92400E] rounded-2xl p-4 text-xs leading-relaxed">
+          A dedicated bot is recommended. Connecting a bot already used elsewhere can replace its existing webhook. Tokens stay encrypted on the server.
+        </div>
+
+        <div id="channelsGrid" class="grid md:grid-cols-2 gap-4"></div>
+      </section>
+      <!-- SECTION 4: UTM CAMPAIGN & AD ANALYTICS -->
+      <section id="sec_utm" class="hidden space-y-6">
+        <div class="flex flex-wrap justify-between items-center gap-4">
+          <div>
+            <div class="text-xs text-gray-400 font-medium mb-1">Workspace / Campaign Attribution</div>
+            <h1 class="text-3xl font-extrabold tracking-tight">Campaign & Ad-Wise UTM Report</h1>
+            <p class="text-xs text-gray-500 mt-1">See which Facebook campaign/ad brings real Telegram joins vs fake clicks.</p>
+          </div>
+          <div class="flex gap-2">
+            <button onclick="refreshData()" class="bg-white border border-gray-300 px-4 py-2.5 rounded-xl text-xs font-bold">↻ Refresh</button>
+            <button onclick="exportUtmCsv()" class="bg-gray-900 text-white px-4 py-2.5 rounded-xl text-xs font-bold">⬇ Export CSV</button>
+          </div>
+        </div>
+
+        <div class="bg-white border border-gray-200/80 rounded-3xl overflow-x-auto shadow-sm">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-[#F9F8F4] text-gray-500 uppercase text-[10px] border-b">
+              <tr>
+                <th class="p-4">Landing Page</th>
+                <th class="p-4">utm_campaign</th>
+                <th class="p-4">utm_source / medium / content</th>
+                <th class="p-4">Real Clicks</th>
+                <th class="p-4">Fake Blocked</th>
+                <th class="p-4">TG Joins</th>
+                <th class="p-4">Join Rate</th>
+              </tr>
+            </thead>
+            <tbody id="utmTbody" class="divide-y divide-gray-100"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- SECTION 5: TELEGRAM BROADCAST -->
+      <section id="sec_broadcast" class="hidden space-y-6">
+        <div>
+          <div class="text-xs text-gray-400 font-medium mb-1">Workspace / Audience Outreach</div>
+          <h1 class="text-3xl font-extrabold tracking-tight">Telegram Broadcast</h1>
+          <p class="text-xs text-gray-500 mt-1">Send a promotional DM or offer to all users who requested to join your connected channel.</p>
+        </div>
+
+        <div class="bg-white border border-gray-200/80 rounded-3xl p-6 max-w-2xl shadow-sm">
+          <form id="broadcastForm" class="space-y-4 text-xs">
+            <div>
+              <label class="block font-bold text-gray-700 mb-1">Select Connected Channel</label>
+              <select id="bc_channel" required class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm bg-white font-semibold"></select>
+            </div>
+            <div>
+              <label class="block font-bold text-gray-700 mb-1">Broadcast Message (supports HTML &lt;b&gt;, &lt;i&gt;)</label>
+              <textarea id="bc_msg" required rows="5" placeholder="🔥 Special Update: New signals & bonus inside! Check it out now..." class="w-full border border-gray-300 rounded-xl p-3.5 text-sm"></textarea>
+            </div>
+            <div class="grid sm:grid-cols-2 gap-3">
+              <div><label class="block font-bold text-gray-700 mb-1">Inline Button Text (optional)</label><input id="bc_btn_text" placeholder="e.g. Open Link" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" /></div>
+              <div><label class="block font-bold text-gray-700 mb-1">Inline Button URL (optional)</label><input id="bc_btn_url" placeholder="https://..." class="w-full border rounded-xl px-3.5 py-2.5 text-sm" /></div>
+            </div>
+            <div id="bc_result" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-2xl p-3.5 font-bold"></div>
+            <button type="submit" id="bc_submit" class="bg-[#F26522] hover:bg-[#d95314] text-white font-bold px-6 py-3.5 rounded-xl text-sm shadow-md">Send Broadcast to All Users 📢</button>
+          </form>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- CREATE PAGE MODAL (Exact "Make room for your next idea." + Templates) -->
+  <div id="newPageModal" class="fixed inset-0 bg-black/50 backdrop-blur-xs hidden items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl my-8 relative">
+      <button onclick="closeModal('newPageModal')" class="absolute top-5 right-5 text-gray-400 text-xl font-bold">&times;</button>
+      <h2 class="text-2xl font-extrabold leading-tight">Make room for your next idea.</h2>
+      <p class="text-xs text-gray-500 mt-1 mb-5">Choose an address, then start with a template. You can change every detail.</p>
+
+      <form id="newPageForm" class="space-y-4">
+        <div>
+          <label class="block text-xs font-bold mb-1">Page name</label>
+          <input id="np_title" required placeholder="My community page" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs font-bold mb-1">Page URL path / Subdomain</label>
+          <input id="np_slug" required placeholder="e.g. lossrecover" class="w-full border border-gray-300 rounded-xl px-3.5 py-2.5 text-sm" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold mb-2">Pick a starting point</label>
+          <div class="grid grid-cols-2 gap-3">
+            <div onclick="selectTpl('blank')" id="tpl_blank" class="border-2 border-gray-200 rounded-2xl p-3 cursor-pointer hover:border-gray-400 transition">
+              <div class="h-20 bg-gray-100 rounded-xl flex items-center justify-center text-2xl text-gray-400 mb-2">+</div>
+              <div class="text-xs font-bold">Blank canvas</div>
+            </div>
+            <div onclick="selectTpl('forex')" id="tpl_forex" class="border-2 border-gray-200 rounded-2xl p-3 cursor-pointer tpl-selected transition">
+              <div class="h-20 bg-[#EFEFE8] rounded-xl flex flex-col items-center justify-center p-2 text-center mb-2">
+                <span class="w-5 h-5 rounded-full bg-[#2E5A3E] mb-1"></span>
+                <span class="text-[10px] font-bold text-[#2E5A3E] leading-tight">Understand the move.</span>
+              </div>
+              <div class="text-xs font-bold">Forex Learning · Classic</div>
+            </div>
+            <div onclick="selectTpl('fitness')" id="tpl_fitness" class="border-2 border-gray-200 rounded-2xl p-3 cursor-pointer hover:border-gray-400 transition">
+              <div class="h-20 bg-blue-50 rounded-xl flex flex-col items-center justify-center p-2 text-center mb-2">
+                <span class="w-5 h-5 rounded-full bg-blue-600 mb-1"></span>
+                <span class="text-[10px] font-bold text-blue-900 leading-tight">Get stronger every week.</span>
+              </div>
+              <div class="text-xs font-bold">Fitness Club · Split</div>
+            </div>
+            <div onclick="selectTpl('exam')" id="tpl_exam" class="border-2 border-gray-200 rounded-2xl p-3 cursor-pointer hover:border-gray-400 transition">
+              <div class="h-20 bg-zinc-900 rounded-xl flex flex-col items-center justify-center p-2 text-center mb-2">
+                <span class="w-5 h-5 rounded-full bg-yellow-400 mb-1"></span>
+                <span class="text-[10px] font-bold text-white leading-tight">Crack your exam.</span>
+              </div>
+              <div class="text-xs font-bold">Exam Prep · Card</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-3">
+          <button type="button" onclick="closeModal('newPageModal')" class="px-5 py-2.5 border rounded-xl text-xs font-bold">Cancel</button>
+          <button type="submit" class="bg-[#F26522] hover:bg-[#d95314] text-white px-6 py-2.5 rounded-xl text-xs font-bold shadow-md">Open the builder ↗</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- FULL-SCREEN PAGEBANAO EDITOR MODAL (Visual Content/Style/Advanced + HTML 3-Step Mode) -->
+  <div id="editorModal" class="fixed inset-0 bg-[#F9F8F4] hidden flex-col z-40 overflow-y-auto">
+    <!-- Editor Top Bar -->
+    <div class="bg-white border-b border-gray-200 px-5 py-3 flex flex-wrap justify-between items-center gap-3 sticky top-0 z-20">
+      <div class="flex items-center gap-3">
+        <button onclick="closeModal('editorModal')" class="text-gray-500 hover:text-black font-bold text-lg px-2">←</button>
+        <span class="w-7 h-7 rounded-lg bg-[#F26522] text-white flex items-center justify-center text-xs font-extrabold">M</span>
+        <span id="ed_title" class="font-extrabold text-sm"></span>
+        <a id="ed_live_link" href="#" target="_blank" class="text-[11px] text-[#F26522] underline hidden sm:inline"></a>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-2">
+        <label class="flex items-center gap-2 bg-[#F5F4EE] px-3 py-1.5 rounded-full cursor-pointer text-xs font-bold">
+          <input type="checkbox" id="ed_html_toggle" onchange="toggleEditorMode()" class="w-4 h-4 accent-[#F26522]" />
+          <span>HTML page</span>
+        </label>
+        <button onclick="openModal('trackingModal')" class="border border-gray-300 bg-white hover:bg-gray-50 px-3.5 py-1.5 rounded-xl text-xs font-bold">⚡ Tracking</button>
+        <button onclick="savePage()" class="bg-[#F26522] hover:bg-[#d95314] text-white px-5 py-1.5 rounded-xl text-xs font-bold shadow-sm">Publish ↗</button>
+      </div>
+    </div>
+
+    <!-- VISUAL BUILDER BODY -->
+    <div id="visualEditorWrap" class="flex-1 max-w-6xl w-full mx-auto p-5 grid lg:grid-cols-12 gap-6">
+      <!-- Left: Device Preview Canvas (7 cols) -->
+      <div class="lg:col-span-7 flex flex-col items-center">
+        <div class="flex items-center gap-1 bg-white border border-gray-200 p-1 rounded-xl mb-4 text-xs font-semibold">
+          <button onclick="setPreviewDevice('desktop')" id="dev_desktop" class="px-3 py-1.5 rounded-lg text-gray-500">Desktop</button>
+          <button onclick="setPreviewDevice('tablet')" id="dev_tablet" class="px-3 py-1.5 rounded-lg text-gray-500">Tablet</button>
+          <button onclick="setPreviewDevice('mobile')" id="dev_mobile" class="px-3 py-1.5 rounded-lg bg-[#F5F4EE] text-black font-bold">Mobile</button>
+        </div>
+
+        <div id="previewPhone" class="w-[320px] min-h-[540px] rounded-[38px] border-[8px] border-gray-900 shadow-2xl overflow-y-auto flex items-center justify-center p-5 transition-all">
+          <div class="bg-white/95 w-full rounded-2xl shadow-lg p-6 text-center border border-black/5">
+            <div id="pv_badge" class="text-[10px] font-bold tracking-[0.15em] text-gray-500 uppercase mb-4"></div>
+            <img id="pv_img" src="" class="hidden w-16 h-16 rounded-2xl object-cover mx-auto mb-4 shadow" />
+            <h1 id="pv_headline" class="font-extrabold text-gray-900 leading-tight mb-3"></h1>
+            <p id="pv_subtext" class="text-xs text-gray-600 mb-5 leading-relaxed"></p>
+            <div id="pv_bullets" class="space-y-1.5 mb-6 text-xs text-gray-700"></div>
+            <div id="pv_btn" class="w-full text-white font-bold py-3.5 px-5 rounded-xl text-sm shadow-md"></div>
+            <div class="text-[10px] text-gray-400 mt-3">Request to join · Opens in Telegram</div>
+            <div id="pv_disclaimer" class="text-[9px] text-gray-400 mt-3 leading-relaxed"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Element Inspector with Content / Style / Advanced Tabs (5 cols) -->
+      <div class="lg:col-span-5 bg-white rounded-3xl border border-gray-200 p-5 h-fit shadow-sm">
+        <div class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Page Inspector</div>
+        <h3 class="text-xl font-extrabold mb-1">Customize Page</h3>
+        <p class="text-xs text-gray-400 mb-4">Changes appear on your preview immediately.</p>
+
+        <div class="grid grid-cols-3 bg-[#F5F4EE] p-1 rounded-xl text-xs font-bold mb-5">
+          <button onclick="switchInspectorTab('content')" id="insp_content" class="py-2 rounded-lg bg-white shadow-sm">Content</button>
+          <button onclick="switchInspectorTab('style')" id="insp_style" class="py-2 rounded-lg text-gray-500">Style</button>
+          <button onclick="switchInspectorTab('advanced')" id="insp_advanced" class="py-2 rounded-lg text-gray-500">Advanced</button>
+        </div>
+
+        <!-- Content Tab -->
+        <div id="tab_content" class="space-y-3 text-xs">
+          <div><label class="font-bold text-gray-600">Top Badge</label><input id="ed_badge" oninput="updateLivePreview()" class="w-full border rounded-xl px-3 py-2 mt-1" /></div>
+          <div><label class="font-bold text-gray-600">Logo / Image URL</label><input id="ed_image" oninput="updateLivePreview()" placeholder="https://..." class="w-full border rounded-xl px-3 py-2 mt-1" /></div>
+          <div><label class="font-bold text-gray-600">Headline</label><textarea id="ed_headline" oninput="updateLivePreview()" rows="2" class="w-full border rounded-xl px-3 py-2 mt-1 font-semibold"></textarea></div>
+          <div><label class="font-bold text-gray-600">Subtext</label><textarea id="ed_subtext" oninput="updateLivePreview()" rows="2" class="w-full border rounded-xl px-3 py-2 mt-1"></textarea></div>
+          <div><label class="font-bold text-gray-600">Bullet Points (1 per line)</label><textarea id="ed_bullets" oninput="updateLivePreview()" rows="3" class="w-full border rounded-xl px-3 py-2 mt-1"></textarea></div>
+          <div><label class="font-bold text-gray-600">Button Text</label><input id="ed_btn_text" oninput="updateLivePreview()" class="w-full border rounded-xl px-3 py-2 mt-1" /></div>
+        </div>
+
+        <!-- Style Tab -->
+        <div id="tab_style" class="hidden space-y-4 text-xs">
+          <div>
+            <label class="font-bold text-gray-600">Headline Font Size: <span id="fs_val">28</span>px</label>
+            <input id="ed_font_size" type="range" min="18" max="42" value="28" oninput="document.getElementById('fs_val').innerText=this.value; updateLivePreview()" class="w-full accent-[#F26522] mt-1" />
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <label class="border rounded-xl p-3 flex items-center justify-between font-bold">Button Color <input id="ed_btn_color" type="color" oninput="updateLivePreview()" class="w-7 h-7" /></label>
+            <label class="border rounded-xl p-3 flex items-center justify-between font-bold">Page BG <input id="ed_bg_color" type="color" oninput="updateLivePreview()" class="w-7 h-7" /></label>
+          </div>
+        </div>
+
+        <!-- Advanced Tab -->
+        <div id="tab_advanced" class="hidden space-y-4 text-xs">
+          <div>
+            <label class="font-bold text-gray-600">Delay before displaying CTA button (seconds)</label>
+            <input id="ed_delay" type="number" min="0" max="60" value="0" class="w-full border rounded-xl px-3 py-2 mt-1" />
+          </div>
+          <div>
+            <label class="font-bold text-gray-600">Footer Disclaimer</label>
+            <textarea id="ed_disclaimer" oninput="updateLivePreview()" rows="2" class="w-full border rounded-xl px-3 py-2 mt-1"></textarea>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HTML LANDING PAGE MODE BODY (Exact PageBanao 3-Step Cards + Mobile Preview) -->
+    <div id="htmlEditorWrap" class="hidden flex-1 max-w-5xl w-full mx-auto p-5 grid lg:grid-cols-12 gap-6">
+      <div class="lg:col-span-7 space-y-4">
+        <div>
+          <h2 class="text-2xl font-extrabold">HTML landing page</h2>
+          <p class="text-xs text-gray-500 mt-1">Upload your own index.html. Smart Tracking works on the button that uses your tracking link.</p>
+        </div>
+
+        <!-- Card 1 -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 space-y-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2.5"><span class="w-6 h-6 rounded-full bg-orange-100 text-[#F26522] text-xs font-extrabold flex items-center justify-center">1</span><h3 class="font-bold text-sm">Your public folder</h3></div>
+            <span id="ed_btn_badge" class="text-[11px] font-bold px-2.5 py-1 rounded-full"></span>
+          </div>
+          <p class="text-xs text-gray-500">Upload your `index.html` file or paste your HTML code below.</p>
+          <label class="inline-block bg-[#F26522] hover:bg-[#d95314] text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">
+            📂 Upload index.html
+            <input type="file" accept=".html,.htm" onchange="handleHtmlFileUpload(event)" class="hidden" />
+          </label>
+          <textarea id="ed_custom_html" oninput="updateHtmlPreview()" rows="7" placeholder="Paste your complete HTML landing page here..." class="w-full border rounded-xl p-3 text-xs font-mono bg-gray-950 text-green-300"></textarea>
+        </div>
+
+        <!-- Card 2 -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-5 space-y-3">
+          <div class="flex items-center gap-2.5"><span class="w-6 h-6 rounded-full bg-orange-100 text-[#F26522] text-xs font-extrabold flex items-center justify-center">2</span><h3 class="font-bold text-sm">Smart Tracking link</h3></div>
+          <p class="text-xs text-gray-500">Use this link as the <b>href</b> of the button that should open Telegram with Smart Tracking.</p>
+          <div class="flex items-center gap-2">
+            <code id="ed_smart_url" class="bg-[#F5F4EE] px-3 py-2 rounded-xl border text-xs flex-1 overflow-x-auto"></code>
+            <button type="button" onclick="copyText(document.getElementById('ed_smart_url').innerText)" class="bg-gray-900 text-white px-3.5 py-2 rounded-xl text-xs font-bold">Copy</button>
+          </div>
+          <button type="button" onclick="regenSmartKey()" class="border border-gray-300 hover:bg-gray-50 px-3.5 py-1.5 rounded-xl text-xs font-bold">⚡ Generate new key</button>
+        </div>
+
+        <!-- Card 3 -->
+        <div class="bg-white rounded-2xl border border-gray-200 p-5">
+          <div class="flex items-center gap-2.5 mb-2"><span class="w-6 h-6 rounded-full bg-orange-100 text-[#F26522] text-xs font-extrabold flex items-center justify-center">3</span><h3 class="font-bold text-sm">Turn on tracking & publish</h3></div>
+          <p class="text-xs text-gray-500">Click <b>⚡ Tracking</b> → Smart Tracking and choose your channel, then <b>Publish</b>.</p>
+        </div>
+      </div>
+
+      <!-- HTML Mobile Preview Iframe -->
+      <div class="lg:col-span-5 flex flex-col items-center">
+        <div class="w-[310px] h-[580px] rounded-[40px] border-[8px] border-gray-900 bg-white shadow-2xl overflow-hidden flex flex-col">
+          <div class="w-28 h-5 bg-gray-900 rounded-b-2xl mx-auto"></div>
+          <iframe id="htmlPreviewFrame" class="w-full flex-1 border-0"></iframe>
+        </div>
+        <p class="text-[11px] text-gray-400 mt-3">Mobile preview · links and tracking are off in this preview</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- TRACKING SETTINGS MODAL -->
+  <div id="trackingModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl space-y-4">
+      <div class="flex justify-between items-center"><h2 class="text-xl font-extrabold">⚡ Page Tracking</h2><button onclick="closeModal('trackingModal')" class="text-gray-400 text-xl font-bold">&times;</button></div>
+      <select id="ed_tracking_mode" onchange="toggleTrackingFields()" class="w-full border rounded-xl px-3.5 py-2.5 text-sm bg-white font-semibold">
+        <option value="none">No tracking</option>
+        <option value="pixel">Normal – Meta Pixel</option>
+        <option value="smart">Smart Tracking – Telegram → Meta CAPI</option>
+      </select>
+      <div id="smartChannelWrap">
+        <label class="block text-xs font-bold mb-1">Select Connected Channel</label>
+        <select id="ed_channel_id" class="w-full border rounded-xl px-3.5 py-2.5 text-sm bg-white"></select>
+      </div>
+      <div id="normalPixelWrap" class="hidden">
+        <label class="block text-xs font-bold mb-1">Meta Pixel ID</label>
+        <input id="ed_normal_pixel" placeholder="123456789012345" class="w-full border rounded-xl px-3.5 py-2.5 text-sm" />
+      </div>
+      <label class="flex items-center justify-between border rounded-xl p-3 text-xs font-semibold cursor-pointer">
+        <span>Instant Telegram Redirect (Skip Landing Page)</span>
+        <input type="checkbox" id="ed_instant_redirect" class="w-4 h-4 accent-[#F26522]" />
+      </label>
+      <button onclick="closeModal('trackingModal')" class="w-full bg-[#F26522] text-white font-bold py-3 rounded-xl text-sm">Done ✓</button>
+    </div>
+  </div>
+
+  <!-- CONNECT TELEGRAM CHANNEL MODAL -->
+  <div id="channelModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl my-8 relative">
+      <button onclick="closeModal('channelModal')" class="absolute top-5 right-5 text-gray-400 text-xl font-bold">&times;</button>
+      <h2 class="text-2xl font-extrabold mb-1">Connect your Telegram channel</h2>
+      <p class="text-xs text-gray-500 mb-4">4 details, about 2 minutes. Bot must be Admin in channel.</p>
+      <form id="channelForm" class="space-y-3 text-sm">
+        <input id="ch_name" required placeholder="Connection name" class="w-full border rounded-xl px-3.5 py-2.5" />
+        <input id="ch_id" required placeholder="Telegram channel ID (-1001234567890)" class="w-full border rounded-xl px-3.5 py-2.5" />
+        <input id="ch_token" required placeholder="Telegram bot token (123456:AAH...)" class="w-full border rounded-xl px-3.5 py-2.5" />
+        <input id="ch_pixel" required placeholder="Meta Pixel ID" class="w-full border rounded-xl px-3.5 py-2.5" />
+        <select id="ch_event" class="w-full border rounded-xl px-3.5 py-2.5 bg-white">
+          <option value="Subscribe">Subscribe</option>
+          <option value="Lead">Lead</option>
+          <option value="CompleteRegistration">CompleteRegistration</option>
+        </select>
+        <input id="ch_capi" required placeholder="Meta Conversions API token (EAAG...)" class="w-full border rounded-xl px-3.5 py-2.5" />
+        <input id="ch_test" placeholder="Test Event Code (optional, e.g. TEST12345)" class="w-full border rounded-xl px-3.5 py-2.5" />
+        <div class="border rounded-2xl divide-y text-xs">
+          <label class="flex justify-between items-center px-4 py-2.5"><span>Count repeat requests</span><input type="checkbox" id="ch_repeat" checked class="w-4 h-4 accent-[#F26522]" /></label>
+          <label class="flex justify-between items-center px-4 py-2.5"><span>Auto-approve requests</span><input type="checkbox" id="ch_approve" class="w-4 h-4 accent-[#F26522]" /></label>
+          <label class="flex justify-between items-center px-4 py-2.5"><span>Replace existing bot webhook</span><input type="checkbox" id="ch_webhook" checked class="w-4 h-4 accent-[#F26522]" /></label>
+        </div>
+        <div class="bg-[#F9F8F4] border rounded-2xl p-3 space-y-2 text-xs">
+          <div class="font-bold text-gray-700">✉️ Auto Welcome DM (optional)</div>
+          <textarea id="ch_welcome" rows="2" placeholder="Welcome {name}! Thanks for requesting to join..." class="w-full border bg-white rounded-xl px-3 py-2"></textarea>
+          <div class="grid grid-cols-2 gap-2">
+            <input id="ch_wbtn_text" placeholder="Button Text (optional)" class="border bg-white rounded-xl px-2.5 py-1.5" />
+            <input id="ch_wbtn_url" placeholder="https://... (optional)" class="border bg-white rounded-xl px-2.5 py-1.5" />
+          </div>
+        </div>
+        <div id="ch_err" class="text-red-600 text-xs hidden"></div>
+        <button type="submit" id="ch_submit" class="w-full bg-[#F26522] text-white font-bold py-3 rounded-xl">Validate & connect ↗</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT CHANNEL SETTINGS & WELCOME DM MODAL -->
+  <div id="editChannelModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl my-8 relative">
+      <button onclick="closeModal('editChannelModal')" class="absolute top-5 right-5 text-gray-400 text-xl font-bold">&times;</button>
+      <h2 id="ech_title" class="text-xl font-extrabold mb-1">Channel Settings & Welcome DM</h2>
+      <p class="text-xs text-gray-500 mb-4">Use <b>{name}</b> to insert user's Telegram first name.</p>
+      <form id="editChannelForm" class="space-y-3 text-xs">
+        <div class="border rounded-2xl divide-y">
+          <label class="flex justify-between items-center px-4 py-2.5"><span>Auto-approve join requests</span><input type="checkbox" id="ech_approve" class="w-4 h-4 accent-[#F26522]" /></label>
+          <label class="flex justify-between items-center px-4 py-2.5"><span>Count repeat requests</span><input type="checkbox" id="ech_repeat" class="w-4 h-4 accent-[#F26522]" /></label>
+        </div>
+        <div>
+          <label class="block font-bold text-gray-600 mb-1">Welcome DM Message (sent when user requests to join)</label>
+          <textarea id="ech_welcome" rows="3" placeholder="Hi {name}! Welcome to our community..." class="w-full border rounded-xl px-3 py-2 text-sm"></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div><label class="block font-bold text-gray-600 mb-1">CTA Button Text</label><input id="ech_wbtn_text" placeholder="e.g. Claim Bonus" class="w-full border rounded-xl px-3 py-2" /></div>
+          <div><label class="block font-bold text-gray-600 mb-1">CTA Button URL</label><input id="ech_wbtn_url" placeholder="https://..." class="w-full border rounded-xl px-3 py-2" /></div>
+        </div>
+        <button type="submit" class="w-full bg-[#F26522] hover:bg-[#d95314] text-white font-bold py-3 rounded-xl text-sm">Save Changes ✓</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- LIVE LOGS MODAL -->
+  <div id="logsModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl my-8 relative">
+      <button onclick="closeModal('logsModal')" class="absolute top-5 right-5 text-gray-400 text-xl font-bold">&times;</button>
+      <h2 class="text-xl font-extrabold mb-4">Live Click & Telegram Join Logs</h2>
+      <div class="grid md:grid-cols-2 gap-4 text-xs">
+        <div><h3 class="font-bold mb-2 text-gray-500">Recent Clicks</h3><div id="logsClicks" class="space-y-1.5 max-h-80 overflow-y-auto"></div></div>
+        <div><h3 class="font-bold mb-2 text-gray-500">Verified Telegram Joins (CAPI)</h3><div id="logsJoins" class="space-y-1.5 max-h-80 overflow-y-auto"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- AUTOMATED UPI QR + UTR BILLING MODAL -->
+  <div id="pricingModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs hidden items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-4xl w-full p-6 shadow-2xl my-8 relative">
+      <button onclick="closeModal('pricingModal')" class="absolute top-5 right-5 text-gray-400 text-xl font-bold">&times;</button>
+      <h2 class="text-2xl font-extrabold mb-1">Upgrade Your MyMeta Plan</h2>
+      <p class="text-xs text-gray-500 mb-5">Select a plan, scan UPI QR, and enter your 12-digit UTR for fast activation (30 days validity).</p>
+
+      <div class="grid md:grid-cols-12 gap-6">
+        <!-- Plan Selection (7 cols) -->
+        <div class="md:col-span-7 space-y-3">
+          <div onclick="selectPayPlan('starter', 1999)" id="pay_starter" class="border-2 border-gray-200 rounded-2xl p-4 cursor-pointer flex justify-between items-center transition">
+            <div><div class="text-xs font-bold text-gray-400">STARTER</div><div class="font-extrabold text-sm">2 Smart Tracking Pages · Meta CAPI</div></div>
+            <div class="text-xl font-extrabold">₹1,999</div>
+          </div>
+          <div onclick="selectPayPlan('agency', 4999)" id="pay_agency" class="border-2 border-[#F26522] bg-orange-50/40 rounded-2xl p-4 cursor-pointer flex justify-between items-center transition">
+            <div><div class="text-xs font-bold text-[#F26522]">GROWTH / AGENCY · POPULAR</div><div class="font-extrabold text-sm">8 Smart Tracking Pages · Priority Support</div></div>
+            <div class="text-xl font-extrabold text-[#F26522]">₹4,999</div>
+          </div>
+          <div onclick="selectPayPlan('enterprise', 14999)" id="pay_enterprise" class="border-2 border-gray-200 rounded-2xl p-4 cursor-pointer flex justify-between items-center transition">
+            <div><div class="text-xs font-bold text-gray-400">BUSINESS PRO</div><div class="font-extrabold text-sm">50 Smart Tracking Pages · Unlimited Channels</div></div>
+            <div class="text-xl font-extrabold">₹14,999</div>
+          </div>
+
+          <div class="pt-3">
+            <h4 class="text-xs font-bold text-gray-500 uppercase mb-2">Your Recent Payments</h4>
+            <div id="userPayHistory" class="space-y-1.5 max-h-36 overflow-y-auto text-xs"></div>
+          </div>
+        </div>
+
+        <!-- UPI QR & UTR Submit Box (5 cols) -->
+        <div class="md:col-span-5 bg-[#F9F8F4] border border-gray-200 rounded-2xl p-5 text-center flex flex-col justify-between">
+          <div>
+            <div class="text-xs font-bold text-gray-500 uppercase mb-2">Scan & Pay via Any UPI App</div>
+            <img id="upiQrImg" src="" alt="UPI QR" class="w-40 h-40 mx-auto rounded-2xl border bg-white p-2 shadow-xs mb-3" />
+            <div class="text-xs font-bold text-gray-800 mb-1">Amount: <span id="upiAmtText" class="text-[#F26522]">₹4,999</span></div>
+            <div class="flex items-center justify-center gap-2 mb-4">
+              <code id="upiIdText" class="bg-white border px-2.5 py-1 rounded-lg text-[11px] font-bold"></code>
+              <button type="button" onclick="copyText(document.getElementById('upiIdText').innerText)" class="text-[11px] font-bold text-[#F26522] underline">Copy</button>
+            </div>
+          </div>
+
+          <form id="utrForm" class="space-y-2.5 text-left">
+            <label class="block text-[11px] font-bold text-gray-600">Enter 12-Digit UTR / Ref Number</label>
+            <input id="utrInput" required placeholder="e.g. 432819204812" class="w-full border border-gray-300 bg-white rounded-xl px-3.5 py-2.5 text-xs font-bold" />
+            <button type="submit" id="utrSubmitBtn" class="w-full bg-[#F26522] hover:bg-[#d95314] text-white font-bold py-3 rounded-xl text-xs shadow-md">Submit Payment ✓</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ADMIN MODAL -->
+  <div id="adminModal" class="fixed inset-0 bg-black/50 hidden items-center justify-center p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-3xl max-w-3xl w-full p-6 shadow-2xl my-8 relative">
+      <button onclick="closeModal('adminModal')" class="absolute top-5 right-5 text-gray-400 text-xl font-bold">&times;</button>
+      <h2 class="text-xl font-extrabold mb-4">SaaS Admin · Manage User Plans</h2>
+      <div id="adminUsersList" class="space-y-2 max-h-96 overflow-y-auto"></div>
+    </div>
+  </div>
+
+  <script>
+    let authMode = 'login', selectedTpl = 'forex', currentUser = null, allPages = [], allChannels = [], currentPageId = null, chartInstance = null;
+
+    function showToast(msg) { const t = document.getElementById('toast'); t.innerText = msg; t.classList.remove('hidden'); setTimeout(() => t.classList.add('hidden'), 2600); }
+    function copyText(txt) { navigator.clipboard.writeText(txt); showToast('Copied ✓'); }
+    function openModal(id) { const m = document.getElementById(id); m.classList.remove('hidden'); m.classList.add('flex'); }
+    function closeModal(id) { const m = document.getElementById(id); m.classList.add('hidden'); m.classList.remove('flex'); }
+
+    function selectTpl(t) {
+      selectedTpl = t;
+      ['blank', 'forex', 'fitness', 'exam'].forEach(x => document.getElementById('tpl_' + x).classList.toggle('tpl-selected', x === t));
+    }
+
+    function switchSection(sec) {
+      ['overview', 'pages', 'channels', 'utm', 'broadcast'].forEach(s => {
+        document.getElementById('sec_' + s).classList.toggle('hidden', s !== sec);
+        document.getElementById('nav_' + s).className = s === sec ? 'px-3.5 py-2 rounded-xl tab-pill-active' : 'px-3.5 py-2 rounded-xl text-gray-600 hover:bg-gray-100';
+      });
+    }
+
+    function switchInspectorTab(tab) {
+      ['content', 'style', 'advanced'].forEach(t => {
+        document.getElementById('tab_' + t).classList.toggle('hidden', t !== tab);
+        document.getElementById('insp_' + t).className = t === tab ? 'py-2 rounded-lg bg-white shadow-sm' : 'py-2 rounded-lg text-gray-500';
+      });
+    }
+
+    function setPreviewDevice(dev) {
+      const p = document.getElementById('previewPhone');
+      p.style.width = dev === 'desktop' ? '100%' : dev === 'tablet' ? '440px' : '320px';
+      ['desktop', 'tablet', 'mobile'].forEach(d => {
+        document.getElementById('dev_' + d).className = d === dev ? 'px-3 py-1.5 rounded-lg bg-[#F5F4EE] text-black font-bold' : 'px-3 py-1.5 rounded-lg text-gray-500';
+      });
+    }
+
+    function switchAuthTab(mode) {
+      authMode = mode;
+      document.getElementById('tabLogin').className = mode === 'login' ? 'flex-1 py-2 rounded-lg bg-white shadow-sm' : 'flex-1 py-2 rounded-lg text-gray-500';
+      document.getElementById('tabReg').className = mode === 'register' ? 'flex-1 py-2 rounded-lg bg-white shadow-sm' : 'flex-1 py-2 rounded-lg text-gray-500';
+      document.getElementById('waWrap').classList.toggle('hidden', mode === 'login');
+      document.getElementById('authHeading').innerText = mode === 'login' ? 'Log in to MyMeta' : 'Create your free account';
+      document.getElementById('auth_btn').innerText = mode === 'login' ? 'Log in →' : 'Verify & Create Account →';
+    }
+    if (new URLSearchParams(window.location.search).get('signup') === '1') switchAuthTab('register');
+
+    document.getElementById('authForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const err = document.getElementById('auth_err'); err.classList.add('hidden');
+      const res = await fetch(`/api/auth/${authMode}`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: document.getElementById('auth_email').value,
+          password: document.getElementById('auth_pass').value,
+          whatsapp: document.getElementById('auth_wa').value
+        })
+      });
+      if (!res.ok) { err.innerText = (await res.json()).detail; err.classList.remove('hidden'); return; }
+      document.getElementById('authCard').classList.add('hidden');
+      document.getElementById('loggedInCard').classList.remove('hidden');
+      setTimeout(() => {
+        document.getElementById('authCard').classList.remove('hidden');
+        document.getElementById('loggedInCard').classList.add('hidden');
+        let editingChannelId = null;
+    function openEditChannel(id) {
+      const c = allChannels.find(x => x.id === id);
+      if (!c) return;
+      editingChannelId = id;
+      document.getElementById('ech_title').innerText = c.name + ' · Settings';
+      document.getElementById('ech_approve').checked = c.auto_approve;
+      document.getElementById('ech_repeat').checked = c.count_repeat;
+      document.getElementById('ech_welcome').value = c.welcome_msg || '';
+      document.getElementById('ech_wbtn_text').value = c.welcome_btn_text || '';
+      document.getElementById('ech_wbtn_url').value = c.welcome_btn_url || '';
+      openModal('editChannelModal');
+    }
+
+    document.getElementById('editChannelForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await fetch(`/api/channels/${editingChannelId}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auto_approve: document.getElementById('ech_approve').checked,
+          count_repeat: document.getElementById('ech_repeat').checked,
+          welcome_msg: document.getElementById('ech_welcome').value,
+          welcome_btn_text: document.getElementById('ech_wbtn_text').value,
+          welcome_btn_url: document.getElementById('ech_wbtn_url').value
+        })
+      });
+      closeModal('editChannelModal');
+      showToast('Channel & Welcome DM Updated ✓');
+      refreshData();
+    });
+
+    let billingData = { upi_id: 'yourupi@oksbi', merchant_name: 'MyMeta SaaS' }, selectedPayPlan = 'agency', selectedPayAmt = 4999;
+
+    async function openBillingModal() {
+      const res = await fetch('/api/billing/info');
+      billingData = await res.json();
+      document.getElementById('upiIdText').innerText = billingData.upi_id;
+      document.getElementById('userPayHistory').innerHTML = billingData.history.length
+        ? billingData.history.map(h => `<div class="bg-gray-50 border rounded-xl px-3 py-2 flex justify-between items-center"><span><b>${h.plan.toUpperCase()}</b> · ₹${h.amount} · <span class="text-gray-400">${h.utr}</span></span><span class="font-bold ${h.status==='approved'?'text-green-600':h.status==='rejected'?'text-red-600':'text-amber-600'}">${h.status.toUpperCase()}</span></div>`).join('')
+        : '<div class="text-gray-400">No payments submitted yet.</div>';
+      selectPayPlan(selectedPayPlan, selectedPayAmt);
+      openModal('pricingModal');
+    }
+
+    function selectPayPlan(plan, amt) {
+      selectedPayPlan = plan; selectedPayAmt = amt;
+      ['starter', 'agency', 'enterprise'].forEach(p => {
+        document.getElementById('pay_' + p).className = p === plan
+          ? 'border-2 border-[#F26522] bg-orange-50/40 rounded-2xl p-4 cursor-pointer flex justify-between items-center transition'
+          : 'border-2 border-gray-200 rounded-2xl p-4 cursor-pointer flex justify-between items-center transition';
+      });
+      document.getElementById('upiAmtText').innerText = '₹' + amt.toLocaleString('en-IN');
+      const upiUri = `upi://pay?pa=${encodeURIComponent(billingData.upi_id)}&pn=${encodeURIComponent(billingData.merchant_name)}&am=${amt}&cu=INR&tn=MyMeta_${plan}`;
+      document.getElementById('upiQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUri)}`;
+    }
+
+    document.getElementById('utrForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('utrSubmitBtn');
+      btn.innerText = 'Submitting...';
+      const res = await fetch('/api/billing/submit', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: selectedPayPlan, utr: document.getElementById('utrInput').value })
+      });
+      const data = await res.json();
+      btn.innerText = 'Submit Payment ✓';
+      if (!res.ok) { showToast(data.detail || 'Error'); return; }
+      document.getElementById('utrInput').value = '';
+      showToast('UTR Submitted! Admin will approve shortly ✓');
+      openBillingModal();
+    });
+
+    let lastUtmRows = [];
+
+    function renderUtmTable(rows) {
+      lastUtmRows = rows || [];
+      const tb = document.getElementById('utmTbody');
+      if (!lastUtmRows.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-gray-400">No UTM click data yet. Add ?utm_campaign=fb_ad_1 to your landing page URL to test.</td></tr>';
+        return;
+      }
+      tb.innerHTML = lastUtmRows.map(r => `
+        <tr class="hover:bg-gray-50/70">
+          <td class="p-4 font-bold text-gray-900">${r.page_title}</td>
+          <td class="p-4 font-bold text-[#F26522]">${r.campaign}</td>
+          <td class="p-4 text-gray-600">${r.source} / ${r.medium} / ${r.content}</td>
+          <td class="p-4 font-extrabold text-blue-700">${r.real_clicks}</td>
+          <td class="p-4 font-extrabold text-red-600">${r.fake_clicks}</td>
+          <td class="p-4 font-extrabold text-emerald-700">${r.joins}</td>
+          <td class="p-4"><span class="bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1 rounded-full">${r.conv_rate}%</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function exportUtmCsv() {
+      if (!lastUtmRows.length) { showToast('No UTM data to export'); return; }
+      const headers = ['Page', 'Campaign', 'Source', 'Medium', 'Content', 'Real Clicks', 'Fake Blocked', 'Joins', 'Join Rate %'];
+      const lines = [headers.join(',')].concat(
+        lastUtmRows.map(r => [r.page_title, r.campaign, r.source, r.medium, r.content, r.real_clicks, r.fake_clicks, r.joins, r.conv_rate]
+          .map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','))
+      );
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'mymeta_utm_report.csv'; a.click();
+      URL.revokeObjectURL(url);
+      showToast('CSV Downloaded ✓');
+    }
+
+    function populateBroadcastChannels() {
+      const sel = document.getElementById('bc_channel');
+      if (!sel) return;
+      sel.innerHTML = allChannels.length
+        ? allChannels.map(c => `<option value="${c.id}">${c.name} (${c.channel_id})</option>`).join('')
+        : '<option value="">No channel connected</option>';
+    }
+
+    document.getElementById('broadcastForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('bc_submit'), box = document.getElementById('bc_result');
+      btn.innerText = 'Sending Broadcast...'; box.classList.add('hidden');
+      const res = await fetch('/api/broadcast/send', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel_conn_id: document.getElementById('bc_channel').value,
+          message: document.getElementById('bc_msg').value,
+          btn_text: document.getElementById('bc_btn_text').value,
+          btn_url: document.getElementById('bc_btn_url').value
+        })
+      });
+      const data = await res.json();
+      btn.innerText = 'Send Broadcast to All Users 📢';
+      if (!res.ok) { showToast(data.detail || 'Broadcast failed'); return; }
+      box.innerText = `✓ Broadcast Completed: ${data.sent} delivered, ${data.failed} failed (Total targets: ${data.total_targets})`;
+      box.classList.remove('hidden');
+      showToast('Broadcast Sent ✓');
+    });
+
+    initApp();
+      }, 900);
+    });
+
+    async function logout() { await fetch('/api/auth/logout', { method: 'POST' }); location.reload(); }
+
+    async function initApp() {
+      const meRes = await fetch('/api/auth/me');
+      if (!meRes.ok) { document.getElementById('authScreen').classList.remove('hidden'); document.getElementById('appScreen').classList.add('hidden'); return; }
+      currentUser = await meRes.json();
+      document.getElementById('authScreen').classList.add('hidden');
+      document.getElementById('appScreen').classList.remove('hidden');
+      if (currentUser.is_admin) document.getElementById('adminBtn').classList.remove('hidden');
+      if (!currentUser.is_admin && currentUser.plan !== 'free' && currentUser.plan_expires_at > 0 && currentUser.days_left <= 3) {
+        document.getElementById('renewalText').innerText = `⚠️ Your ${currentUser.plan.toUpperCase()} plan expires in ${currentUser.days_left} day(s). Renew now to keep Smart Tracking active.`;
+        document.getElementById('renewalBanner').classList.remove('hidden');
+      }
+      refreshData();
+    }
+
+    async function refreshData() {
+      const [pRes, cRes, sRes, uRes] = await Promise.all([fetch('/api/pages'), fetch('/api/channels'), fetch('/api/stats/overview'), fetch('/api/stats/utm')]);
+      allPages = await pRes.json(); allChannels = await cRes.json(); const stats = await sRes.json(); const utmRows = await uRes.json();
+      document.getElementById('planBadge').innerText = `${currentUser.plan.toUpperCase()} · ${allPages.length}/${currentUser.page_limit}`;
+      document.getElementById('kpi_views').innerText = stats.total_views;
+      document.getElementById('kpi_real').innerText = stats.total_real_clicks;
+      document.getElementById('kpi_fake').innerText = stats.total_fake_blocked;
+      document.getElementById('kpi_joins').innerText = stats.total_joins;
+      renderChart(stats); renderPages(); renderChannels(); renderUtmTable(utmRows); populateBroadcastChannels();
+    }
+
+    function renderChart(stats) {
+      const ctx = document.getElementById('trafficChart').getContext('2d');
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: stats.labels,
+          datasets: [
+            { label: 'Real Clicks', data: stats.real_series, borderColor: '#2563eb', backgroundColor: 'rgba(37,99,235,0.08)', fill: true, tension: 0.35 },
+            { label: 'Fake Blocked', data: stats.fake_series, borderColor: '#dc2626', backgroundColor: 'rgba(220,38,38,0.08)', fill: true, tension: 0.35 },
+            { label: 'Verified TG Joins', data: stats.join_series, borderColor: '#16a34a', backgroundColor: 'rgba(22,163,74,0.1)', fill: true, tension: 0.35 }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 } } } }
+      });
+    }
+
+    function renderPages() {
+      const g = document.getElementById('pagesGrid');
+      const q = (document.getElementById('pageSearch')?.value || '').toLowerCase();
+      const filtered = allPages.filter(p => p.title.toLowerCase().includes(q) || p.slug.toLowerCase().includes(q));
+      if (!filtered.length) {
+        g.innerHTML = `<div class="md:col-span-2 bg-white p-12 rounded-3xl border text-center text-gray-500 text-sm">No landing pages found. Click <b>+ Create a page</b> to start.</div>`;
+        return;
+      }
+      g.innerHTML = filtered.map(p => `
+        <div class="bg-white rounded-3xl border border-gray-200/80 shadow-sm overflow-hidden flex flex-col">
+          <div style="background-color:${p.visual_bg_color || '#EFEFE8'};" class="p-6 text-center relative border-b border-black/5">
+            <span class="absolute top-3 left-3 bg-white/90 text-gray-700 text-[10px] font-bold px-2.5 py-1 rounded-lg shadow-xs">${p.channel_conn_id ? '⚡ Smart Tracking' : 'Live'}</span>
+            <span class="absolute top-3 right-3 text-[10px] font-bold px-2.5 py-1 rounded-lg ${p.mode === 'html' ? 'bg-purple-100 text-purple-700' : 'bg-white/90 text-gray-700'}">${p.mode === 'html' ? 'HTML' : 'Visual'}</span>
+            <div class="text-[9px] font-bold tracking-widest text-gray-500 uppercase mt-3 mb-2">${p.visual_badge || ''}</div>
+            <div class="font-extrabold text-lg text-gray-900 leading-tight line-clamp-2">${p.visual_headline || p.title}</div>
+          </div>
+          <div class="p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <h3 class="font-extrabold text-base">${p.title}</h3>
+              <a href="${p.live_url}" target="_blank" class="text-xs text-[#F26522] font-semibold hover:underline break-all">${p.live_url}</a>
+              <div class="grid grid-cols-4 gap-2 text-center my-4">
+                <div class="bg-[#F9F8F4] p-2 rounded-xl"><div class="font-extrabold text-sm">${p.views}</div><div class="text-[10px] text-gray-500">Views</div></div>
+                <div class="bg-blue-50 p-2 rounded-xl"><div class="font-extrabold text-sm text-blue-700">${p.real_clicks}</div><div class="text-[10px] text-blue-600">Clicks</div></div>
+                <div class="bg-red-50 p-2 rounded-xl"><div class="font-extrabold text-sm text-red-600">${p.fake_clicks}</div><div class="text-[10px] text-red-500">Blocked</div></div>
+                <div class="bg-green-50 p-2 rounded-xl"><div class="font-extrabold text-sm text-green-700">${p.verified_joins}</div><div class="text-[10px] text-green-600">Joins</div></div>
+              </div>
+            </div>
+            <div class="flex gap-2">
+              <button onclick="openEditor('${p.id}')" class="flex-1 bg-gray-900 text-white py-2 rounded-xl text-xs font-bold">Edit page ↗</button>
+              <button onclick="openLogs('${p.id}')" class="px-3 border rounded-xl text-xs font-bold">View report</button>
+              <button onclick="copyText('${p.live_url}')" class="px-3 border rounded-xl text-xs font-bold">Copy</button>
+              <button onclick="deletePage('${p.id}')" class="px-3 border border-red-200 text-red-600 rounded-xl text-xs font-bold">✕</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderChannels() {
+      const g = document.getElementById('channelsGrid');
+      if (!allChannels.length) {
+        g.innerHTML = `<div class="md:col-span-2 bg-white p-12 rounded-3xl border text-center">
+          <h3 class="font-extrabold text-lg mb-1">Your community, connected.</h3>
+          <p class="text-xs text-gray-500 mb-5">Add your Telegram bot, channel and Meta credentials. Then choose this connection in any page's Tracking panel.</p>
+          <button onclick="openModal('channelModal')" class="bg-[#F26522] text-white px-6 py-3 rounded-xl text-xs font-bold shadow-md">Connect your first channel ↗</button>
+        </div>`;
+        return;
+      }
+      g.innerHTML = allChannels.map(c => `
+        <div class="bg-white p-5 rounded-3xl border border-gray-200/80 shadow-sm flex flex-wrap justify-between items-center gap-3">
+          <div>
+            <h3 class="font-extrabold text-base">${c.name}</h3>
+            <p class="text-xs text-gray-500">Channel: ${c.channel_id} · Pixel: ${c.pixel_id}</p>
+            <div class="flex flex-wrap gap-1.5 mt-2 text-[10px] font-bold">
+              <span class="bg-green-100 text-green-700 px-2 py-0.5 rounded-full">${c.event}</span>
+              ${c.auto_approve ? '<span class="bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Auto-Approve ON</span>' : '<span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">Manual Request</span>'}
+              ${c.welcome_msg ? '<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded-full">✉️ Welcome DM ON</span>' : ''}
+              ${c.test_mode ? '<span class="bg-yellow-100 text-yellow-700 px-2 py-0.5 rounded-full">Test Mode</span>' : ''}
+            </div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button onclick="openEditChannel('${c.id}')" class="px-3 py-2 bg-gray-900 text-white rounded-xl text-xs font-bold">✉️ Welcome DM</button>
+            <button onclick="resyncWebhook('${c.id}')" class="px-3 py-2 border border-orange-200 text-[#F26522] rounded-xl text-xs font-bold hover:bg-orange-50">Sync Webhook</button>
+            <button onclick="deleteChannel('${c.id}')" class="px-3 py-2 border border-red-200 text-red-600 rounded-xl text-xs font-bold hover:bg-red-50">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function handleHtmlFileUpload(e) {
+      const file = e.target.files[0]; if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => { document.getElementById('ed_custom_html').value = reader.result; updateHtmlPreview(); showToast('index.html loaded ✓'); };
+      reader.readAsText(file);
+    }
+
+    function updateHtmlPreview() {
+      const html = document.getElementById('ed_custom_html').value;
+      const frame = document.getElementById('htmlPreviewFrame');
+      frame.srcdoc = html.trim() || '<div style="font-family:sans-serif;text-align:center;padding:120px 20px;color:#999;font-size:13px;">Upload your index.html<br>to see the mobile preview here.</div>';
+    }
+
+    async function regenSmartKey() {
+      if (!confirm('Generate a new Smart Tracking key? Old HTML button links will stop working.')) return;
+      const res = await fetch(`/api/pages/${currentPageId}/regen-key`, { method: 'POST' });
+      const data = await res.json();
+      document.getElementById('ed_smart_url').innerText = data.smart_url;
+      showToast('New Smart Key generated ✓');
+    }
+
+    function updateLivePreview() {
+      document.getElementById('previewPhone').style.backgroundColor = document.getElementById('ed_bg_color').value;
+      document.getElementById('pv_badge').innerText = document.getElementById('ed_badge').value;
+      const hl = document.getElementById('pv_headline');
+      hl.innerText = document.getElementById('ed_headline').value;
+      hl.style.fontSize = document.getElementById('ed_font_size').value + 'px';
+      document.getElementById('pv_subtext').innerText = document.getElementById('ed_subtext').value;
+      const bullets = document.getElementById('ed_bullets').value.split('\n').filter(x => x.trim());
+      document.getElementById('pv_bullets').innerHTML = bullets.map(b => `<div>✓ ${b.trim()}</div>`).join('');
+      const btn = document.getElementById('pv_btn');
+      btn.innerText = (document.getElementById('ed_btn_text').value || 'Join Telegram') + ' ➤';
+      btn.style.backgroundColor = document.getElementById('ed_btn_color').value;
+      document.getElementById('pv_disclaimer').innerText = document.getElementById('ed_disclaimer').value;
+      const imgUrl = document.getElementById('ed_image').value.trim();
+      const imgEl = document.getElementById('pv_img');
+      if (imgUrl) { imgEl.src = imgUrl; imgEl.classList.remove('hidden'); } else { imgEl.classList.add('hidden'); }
+    }
+
+    function openEditor(id) {
+      const p = allPages.find(x => x.id === id); currentPageId = id;
+      document.getElementById('ed_title').innerText = p.title;
+      const ll = document.getElementById('ed_live_link'); ll.href = p.live_url; ll.innerText = p.live_url;
+      document.getElementById('ed_html_toggle').checked = (p.mode === 'html');
+      document.getElementById('ed_badge').value = p.visual_badge || '';
+      document.getElementById('ed_image').value = p.visual_image || '';
+      document.getElementById('ed_headline').value = p.visual_headline || '';
+      document.getElementById('ed_subtext').value = p.visual_subtext || '';
+      document.getElementById('ed_bullets').value = p.visual_bullets || '';
+      document.getElementById('ed_btn_text').value = p.visual_btn_text || '';
+      document.getElementById('ed_btn_color').value = p.visual_btn_color || '#F26522';
+      document.getElementById('ed_bg_color').value = p.visual_bg_color || '#F5F4EE';
+      document.getElementById('ed_font_size').value = p.visual_font_size || 28;
+      document.getElementById('fs_val').innerText = p.visual_font_size || 28;
+      document.getElementById('ed_delay').value = p.visual_delay || 0;
+      document.getElementById('ed_disclaimer').value = p.visual_disclaimer || '';
+      document.getElementById('ed_custom_html').value = p.custom_html || '';
+      document.getElementById('ed_smart_url').innerText = p.smart_url;
+      document.getElementById('ed_tracking_mode').value = p.tracking_mode;
+      document.getElementById('ed_normal_pixel').value = p.normal_pixel_id || '';
+      document.getElementById('ed_instant_redirect').checked = p.instant_redirect;
+      const badge = document.getElementById('ed_btn_badge');
+      badge.innerText = p.html_button_matches > 0 ? `✓ ${p.html_button_matches} button(s) matched` : '⚠ No smart link found';
+      badge.className = p.html_button_matches > 0 ? 'text-[11px] font-bold px-2.5 py-1 rounded-full bg-green-100 text-green-700' : 'text-[11px] font-bold px-2.5 py-1 rounded-full bg-yellow-100 text-yellow-700';
+      document.getElementById('ed_channel_id').innerHTML = `<option value="">-- Select Channel --</option>` +
+        allChannels.map(c => `<option value="${c.id}" ${c.id === p.channel_conn_id ? 'selected' : ''}>${c.name} (${c.event})</option>`).join('');
+      toggleEditorMode(); toggleTrackingFields(); updateLivePreview(); updateHtmlPreview(); openModal('editorModal');
+    }
+
+    function toggleEditorMode() {
+      const isHtml = document.getElementById('ed_html_toggle').checked;
+      document.getElementById('visualEditorWrap').classList.toggle('hidden', isHtml);
+      document.getElementById('htmlEditorWrap').classList.toggle('hidden', !isHtml);
+    }
+
+    function toggleTrackingFields() {
+      const m = document.getElementById('ed_tracking_mode').value;
+      document.getElementById('smartChannelWrap').classList.toggle('hidden', m !== 'smart');
+      document.getElementById('normalPixelWrap').classList.toggle('hidden', m !== 'pixel');
+    }
+
+    async function savePage() {
+      await fetch(`/api/pages/${currentPageId}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          mode: document.getElementById('ed_html_toggle').checked ? 'html' : 'visual',
+          visual_badge: document.getElementById('ed_badge').value,
+          visual_image: document.getElementById('ed_image').value,
+          visual_headline: document.getElementById('ed_headline').value,
+          visual_subtext: document.getElementById('ed_subtext').value,
+          visual_bullets: document.getElementById('ed_bullets').value,
+          visual_btn_text: document.getElementById('ed_btn_text').value,
+          visual_btn_color: document.getElementById('ed_btn_color').value,
+          visual_bg_color: document.getElementById('ed_bg_color').value,
+          visual_font_size: parseInt(document.getElementById('ed_font_size').value) || 28,
+          visual_delay: parseInt(document.getElementById('ed_delay').value) || 0,
+          visual_disclaimer: document.getElementById('ed_disclaimer').value,
+          custom_html: document.getElementById('ed_custom_html').value,
+          tracking_mode: document.getElementById('ed_tracking_mode').value,
+          channel_conn_id: document.getElementById('ed_channel_id').value,
+          normal_pixel_id: document.getElementById('ed_normal_pixel').value,
+          instant_redirect: document.getElementById('ed_instant_redirect').checked
+        })
+      });
+      closeModal('editorModal'); showToast('Published ✓'); refreshData();
+    }
+
+    async function deletePage(id) { if (!confirm('Delete page?')) return; await fetch(`/api/pages/${id}`, { method: 'DELETE' }); showToast('Deleted'); refreshData(); }
+    async function resyncWebhook(id) { const r = await fetch(`/api/channels/${id}/resync`, { method: 'POST' }); const d = await r.json(); showToast(r.ok ? 'Webhook Synced ✓' : d.detail); }
+    async function deleteChannel(id) { if (!confirm('Disconnect channel?')) return; await fetch(`/api/channels/${id}`, { method: 'DELETE' }); showToast('Disconnected'); refreshData(); }
+
+    async function openLogs(pageId) {
+      const res = await fetch(`/api/pages/${pageId}/logs`);
+      const data = await res.json();
+      document.getElementById('logsClicks').innerHTML = data.clicks.length
+        ? data.clicks.map(c => `<div class="border p-2 rounded-lg flex justify-between"><span>${c.ip} (${c.campaign})</span><span class="${c.is_fake?'text-red-600 font-bold':'text-green-600'}">${c.is_fake?'FAKE BLOCKED':'REAL'}</span></div>`).join('')
+        : '<div class="text-gray-400">No clicks yet.</div>';
+      document.getElementById('logsJoins').innerHTML = data.joins.length
+        ? data.joins.map(j => `<div class="border p-2 rounded-lg"><div class="flex justify-between"><span>TG User #${j.tg_user_id}</span><span class="${j.capi_sent?'text-green-600 font-bold':'text-red-600 font-bold'}">${j.capi_sent?'CAPI FIRED ✓':'FAILED'}</span></div>${!j.capi_sent && j.capi_response ? `<div class="text-[10px] text-red-500 mt-1 break-all">${j.capi_response}</div>` : ''}</div>`).join('')
+        : '<div class="text-gray-400">No joins yet.</div>';
+      openModal('logsModal');
+    }
+
+    async function openAdminPanel() {
+      const res = await fetch('/api/admin/users');
+      const users = await res.json();
+      document.getElementById('adminUsersList').innerHTML = users.map(u => `
+        <div class="flex flex-wrap justify-between items-center gap-2 border p-3 rounded-xl text-xs">
+          <div><b>${u.email}</b> <span class="text-gray-400">(${u.used_pages}/${u.page_limit} pages)</span></div>
+          <select onchange="setUserPlan('${u.id}', this.value)" class="border rounded-lg px-2 py-1 bg-white font-semibold">
+            <option value="free" ${u.plan==='free'?'selected':''}>Free (2)</option>
+            <option value="starter" ${u.plan==='starter'?'selected':''}>Starter ₹1999 (2)</option>
+            <option value="agency" ${u.plan==='agency'?'selected':''}>Agency ₹4999 (8)</option>
+            <option value="enterprise" ${u.plan==='enterprise'?'selected':''}>Enterprise ₹14999 (50)</option>
+          </select>
+        </div>
+      `).join('');
+      openModal('adminModal');
+    }
+    async function setUserPlan(userId, plan) { await fetch('/api/admin/set-plan', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user_id: userId, plan }) }); showToast('Plan updated ✓'); openAdminPanel(); }
+
+    document.getElementById('newPageForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const res = await fetch('/api/pages', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ title: document.getElementById('np_title').value, slug: document.getElementById('np_slug').value, template: selectedTpl })
+      });
+      if (!res.ok) { showToast((await res.json()).detail); return; }
+      const created = await res.json();
+      closeModal('newPageModal'); document.getElementById('newPageForm').reset();
+      await refreshData(); switchSection('pages'); openEditor(created.id);
+    });
+
+    document.getElementById('channelForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('ch_submit'), err = document.getElementById('ch_err');
+      btn.innerText = 'Validating...'; err.classList.add('hidden');
+      const res = await fetch('/api/channels', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: document.getElementById('ch_name').value, channel_id: document.getElementById('ch_id').value,
+          bot_token: document.getElementById('ch_token').value, pixel_id: document.getElementById('ch_pixel').value,
+          conversion_event: document.getElementById('ch_event').value, capi_token: document.getElementById('ch_capi').value,
+          test_event_code: document.getElementById('ch_test').value, count_repeat: document.getElementById('ch_repeat').checked,
+          auto_approve: document.getElementById('ch_approve').checked, replace_webhook: document.getElementById('ch_webhook').checked,
+          welcome_msg: document.getElementById('ch_welcome').value, welcome_btn_text: document.getElementById('ch_wbtn_text').value,
+          welcome_btn_url: document.getElementById('ch_wbtn_url').value
+        })
+      });
+      btn.innerText = 'Validate & connect ↗';
+      if (!res.ok) { err.innerText = (await res.json()).detail; err.classList.remove('hidden'); return; }
+      closeModal('channelModal'); document.getElementById('channelForm').reset();
+      showToast('Channel Connected ✓'); refreshData();
+    });
+
+    let editingChannelId = null;
+    function openEditChannel(id) {
+      const c = allChannels.find(x => x.id === id);
+      if (!c) return;
+      editingChannelId = id;
+      document.getElementById('ech_title').innerText = c.name + ' · Settings';
+      document.getElementById('ech_approve').checked = c.auto_approve;
+      document.getElementById('ech_repeat').checked = c.count_repeat;
+      document.getElementById('ech_welcome').value = c.welcome_msg || '';
+      document.getElementById('ech_wbtn_text').value = c.welcome_btn_text || '';
+      document.getElementById('ech_wbtn_url').value = c.welcome_btn_url || '';
+      openModal('editChannelModal');
+    }
+
+    document.getElementById('editChannelForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      await fetch(`/api/channels/${editingChannelId}`, {
+        method: 'PUT', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          auto_approve: document.getElementById('ech_approve').checked,
+          count_repeat: document.getElementById('ech_repeat').checked,
+          welcome_msg: document.getElementById('ech_welcome').value,
+          welcome_btn_text: document.getElementById('ech_wbtn_text').value,
+          welcome_btn_url: document.getElementById('ech_wbtn_url').value
+        })
+      });
+      closeModal('editChannelModal');
+      showToast('Channel & Welcome DM Updated ✓');
+      refreshData();
+    });
+
+    let billingData = { upi_id: 'yourupi@oksbi', merchant_name: 'MyMeta SaaS' }, selectedPayPlan = 'agency', selectedPayAmt = 4999;
+
+    async function openBillingModal() {
+      const res = await fetch('/api/billing/info');
+      billingData = await res.json();
+      document.getElementById('upiIdText').innerText = billingData.upi_id;
+      document.getElementById('userPayHistory').innerHTML = billingData.history.length
+        ? billingData.history.map(h => `<div class="bg-gray-50 border rounded-xl px-3 py-2 flex justify-between items-center"><span><b>${h.plan.toUpperCase()}</b> · ₹${h.amount} · <span class="text-gray-400">${h.utr}</span></span><span class="font-bold ${h.status==='approved'?'text-green-600':h.status==='rejected'?'text-red-600':'text-amber-600'}">${h.status.toUpperCase()}</span></div>`).join('')
+        : '<div class="text-gray-400">No payments submitted yet.</div>';
+      selectPayPlan(selectedPayPlan, selectedPayAmt);
+      openModal('pricingModal');
+    }
+
+    function selectPayPlan(plan, amt) {
+      selectedPayPlan = plan; selectedPayAmt = amt;
+      ['starter', 'agency', 'enterprise'].forEach(p => {
+        document.getElementById('pay_' + p).className = p === plan
+          ? 'border-2 border-[#F26522] bg-orange-50/40 rounded-2xl p-4 cursor-pointer flex justify-between items-center transition'
+          : 'border-2 border-gray-200 rounded-2xl p-4 cursor-pointer flex justify-between items-center transition';
+      });
+      document.getElementById('upiAmtText').innerText = '₹' + amt.toLocaleString('en-IN');
+      const upiUri = `upi://pay?pa=${encodeURIComponent(billingData.upi_id)}&pn=${encodeURIComponent(billingData.merchant_name)}&am=${amt}&cu=INR&tn=MyMeta_${plan}`;
+      document.getElementById('upiQrImg').src = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(upiUri)}`;
+    }
+
+    document.getElementById('utrForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('utrSubmitBtn');
+      btn.innerText = 'Submitting...';
+      const res = await fetch('/api/billing/submit', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: selectedPayPlan, utr: document.getElementById('utrInput').value })
+      });
+      const data = await res.json();
+      btn.innerText = 'Submit Payment ✓';
+      if (!res.ok) { showToast(data.detail || 'Error'); return; }
+      document.getElementById('utrInput').value = '';
+      showToast('UTR Submitted! Admin will approve shortly ✓');
+      openBillingModal();
+    });
+
+    let lastUtmRows = [];
+
+    function renderUtmTable(rows) {
+      lastUtmRows = rows || [];
+      const tb = document.getElementById('utmTbody');
+      if (!lastUtmRows.length) {
+        tb.innerHTML = '<tr><td colspan="7" class="p-8 text-center text-gray-400">No UTM click data yet. Add ?utm_campaign=fb_ad_1 to your landing page URL to test.</td></tr>';
+        return;
+      }
+      tb.innerHTML = lastUtmRows.map(r => `
+        <tr class="hover:bg-gray-50/70">
+          <td class="p-4 font-bold text-gray-900">${r.page_title}</td>
+          <td class="p-4 font-bold text-[#F26522]">${r.campaign}</td>
+          <td class="p-4 text-gray-600">${r.source} / ${r.medium} / ${r.content}</td>
+          <td class="p-4 font-extrabold text-blue-700">${r.real_clicks}</td>
+          <td class="p-4 font-extrabold text-red-600">${r.fake_clicks}</td>
+          <td class="p-4 font-extrabold text-emerald-700">${r.joins}</td>
+          <td class="p-4"><span class="bg-emerald-50 text-emerald-700 font-bold px-2.5 py-1 rounded-full">${r.conv_rate}%</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function exportUtmCsv() {
+      if (!lastUtmRows.length) { showToast('No UTM data to export'); return; }
+      const headers = ['Page', 'Campaign', 'Source', 'Medium', 'Content', 'Real Clicks', 'Fake Blocked', 'Joins', 'Join Rate %'];
+      const lines = [headers.join(',')].concat(
+        lastUtmRows.map(r => [r.page_title, r.campaign, r.source, r.medium, r.content, r.real_clicks, r.fake_clicks, r.joins, r.conv_rate]
+          .map(v => '"' + String(v).replace(/"/g, '""') + '"').join(','))
+      );
+      const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a'); a.href = url; a.download = 'mymeta_utm_report.csv'; a.click();
+      URL.revokeObjectURL(url);
+      showToast('CSV Downloaded ✓');
+    }
+
+    function populateBroadcastChannels() {
+      const sel = document.getElementById('bc_channel');
+      if (!sel) return;
+      sel.innerHTML = allChannels.length
+        ? allChannels.map(c => `<option value="${c.id}">${c.name} (${c.channel_id})</option>`).join('')
+        : '<option value="">No channel connected</option>';
+    }
+
+    document.getElementById('broadcastForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('bc_submit'), box = document.getElementById('bc_result');
+      btn.innerText = 'Sending Broadcast...'; box.classList.add('hidden');
+      const res = await fetch('/api/broadcast/send', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          channel_conn_id: document.getElementById('bc_channel').value,
+          message: document.getElementById('bc_msg').value,
+          btn_text: document.getElementById('bc_btn_text').value,
+          btn_url: document.getElementById('bc_btn_url').value
+        })
+      });
+      const data = await res.json();
+      btn.innerText = 'Send Broadcast to All Users 📢';
+      if (!res.ok) { showToast(data.detail || 'Broadcast failed'); return; }
+      box.innerText = `✓ Broadcast Completed: ${data.sent} delivered, ${data.failed} failed (Total targets: ${data.total_targets})`;
+      box.classList.remove('hidden');
+      showToast('Broadcast Sent ✓');
+    });
+
+    initApp();
+  </script>
+</body>
+</html>

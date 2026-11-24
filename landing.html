@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MyMeta — Build Landing Pages That Guarantee 0% Fake Clicks</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    .hero-glow { background: radial-gradient(circle at 50% 0%, rgba(242,101,34,0.14) 0%, rgba(249,248,244,0) 65%); }
+  </style>
+</head>
+<body class="bg-[#F9F8F4] text-gray-950 antialiased">
+
+  <!-- Navbar -->
+  <nav class="bg-white/90 backdrop-blur-xl border-b border-gray-200/70 sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-5 py-3.5 flex justify-between items-center">
+      <a href="/" class="flex items-center gap-2 font-extrabold text-2xl tracking-tight">
+        <span class="w-8 h-8 rounded-xl bg-[#F26522] text-white flex items-center justify-center text-sm shadow-md">M</span>
+        <span>MyMeta<span class="text-[#F26522]">.</span></span>
+      </a>
+      <div class="flex items-center gap-2.5">
+        <a href="/app" class="border border-gray-200 bg-white hover:bg-gray-50 text-sm font-bold px-4 py-2 rounded-full transition">Log in</a>
+        <a href="/app?signup=1" class="bg-gray-950 hover:bg-black text-white px-5 py-2 rounded-full text-sm font-bold shadow-sm transition">Sign up free</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Floating Launch Offer Banner -->
+  <div id="launchBanner" class="max-w-xl mx-auto px-4 mt-4 sticky top-[68px] z-20">
+    <div class="bg-white/95 backdrop-blur border border-orange-200 shadow-lg rounded-2xl px-4 py-3 flex items-center justify-between gap-3 relative">
+      <button onclick="document.getElementById('launchBanner').remove()" class="absolute -top-2 -right-2 w-6 h-6 bg-white border rounded-full text-xs text-gray-400 hover:text-black shadow">×</button>
+      <div class="flex items-center gap-3">
+        <span class="text-2xl">🎁</span>
+        <div class="leading-tight">
+          <div class="text-[10px] font-extrabold text-[#F26522] tracking-wider uppercase">LAUNCH OFFER · LIMITED TIME</div>
+          <div class="text-xs sm:text-sm font-bold">Smart Tracking <span class="bg-[#F26522] text-white px-1.5 py-0.5 rounded text-[10px]">FREE</span> on 2 pages</div>
+        </div>
+      </div>
+      <a href="/app?signup=1" class="bg-[#F26522] hover:bg-[#d95314] text-white text-xs font-bold px-4 py-2 rounded-xl shrink-0 shadow-sm">Claim free →</a>
+    </div>
+  </div>
+
+  <!-- HERO SECTION (Exact IMG_2700 Style) -->
+  <section class="hero-glow pt-12 pb-16 px-5 text-center">
+    <div class="max-w-2xl mx-auto">
+      <div class="inline-flex items-center gap-2 bg-white border border-gray-200/80 shadow-xs text-[11px] font-extrabold tracking-wider uppercase px-4 py-1.5 rounded-full mb-6 text-gray-800">
+        <span class="w-2.5 h-2.5 rounded-full bg-[#F26522]"></span>
+        SMART TELEGRAM TRACKING BUILT-IN
+      </div>
+
+      <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight leading-[1.1] mb-8">
+        Build Landing Pages That Guarantee <span class="text-[#F26522]">0% Fake Clicks.</span>
+      </h1>
+
+      <!-- Interactive Hero CTA Card -->
+      <div class="bg-white border border-orange-200/80 rounded-3xl p-3 shadow-xl shadow-orange-500/10 max-w-lg mx-auto mb-6">
+        <div class="flex items-center gap-3 px-4 py-3 text-gray-400 text-sm">
+          <span>📄</span>
+          <input id="heroSlug" type="text" placeholder="Create your smart page (e.g. mychannel)" class="w-full text-gray-800 font-medium focus:outline-none text-sm" />
+        </div>
+        <button onclick="window.location.href='/app?signup=1'" class="w-full bg-[#F26522] hover:bg-[#d95314] text-white font-extrabold py-4 rounded-2xl text-base shadow-lg shadow-orange-500/25 transition">
+          Stop Fake Clicks →
+        </button>
+      </div>
+
+      <div class="flex items-center justify-center gap-4 text-xs font-semibold text-gray-600 mb-3">
+        <span>Works with</span>
+        <span class="inline-flex items-center gap-1.5 font-bold text-gray-900"><span class="w-5 h-5 rounded-full bg-blue-600 text-white text-[10px] flex items-center justify-center">∞</span> Meta Ads</span>
+        <span class="inline-flex items-center gap-1.5 font-bold text-gray-900"><span class="w-5 h-5 rounded-full bg-sky-500 text-white text-[10px] flex items-center justify-center">✈</span> Telegram</span>
+      </div>
+      <div class="text-xs text-gray-500">
+        Already have a page? <a href="/app?signup=1" class="text-gray-950 font-bold underline">Set up Telegram tracking only →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FEATURES SECTION (Exact IMG_2701 Style) -->
+  <section class="max-w-4xl mx-auto px-5 py-16">
+    <div class="mb-8">
+      <div class="inline-flex items-center gap-2 text-[11px] font-extrabold tracking-wider uppercase text-gray-700 mb-2">
+        <span class="w-2 h-2 rounded-full bg-[#F26522]"></span> LESS SETUP. MORE POSSIBILITY.
+      </div>
+      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">Everything your next landing page needs.</h2>
+      <p class="text-gray-500 text-sm mt-2">No disconnected tools. No guessing. Just one clear path from idea to audience.</p>
+    </div>
+
+    <div class="space-y-4">
+      <div class="bg-white border border-gray-200/80 rounded-3xl p-6 flex items-start gap-4 shadow-xs">
+        <div class="w-12 h-12 rounded-2xl bg-orange-50 text-[#F26522] flex items-center justify-center text-xl shrink-0">⊞</div>
+        <div>
+          <h3 class="font-extrabold text-lg">A builder that gets you.</h3>
+          <p class="text-xs sm:text-sm text-gray-500 mt-1 leading-relaxed">Start with a template. Customize your words, images and buttons. Make every detail feel like your brand.</p>
+        </div>
+      </div>
+
+      <div class="bg-[#111111] text-white rounded-3xl p-6 flex items-start gap-4 shadow-xl">
+        <div class="w-12 h-12 rounded-2xl bg-sky-500 text-white flex items-center justify-center text-xl shrink-0">✈</div>
+        <div>
+          <h3 class="font-extrabold text-lg">Track the actual request.</h3>
+          <p class="text-xs sm:text-sm text-gray-300 mt-1 leading-relaxed">Connect your Telegram bot and Meta Pixel. Send your selected event when a tracked join request arrives.</p>
+        </div>
+      </div>
+
+      <div class="bg-white border border-gray-200/80 rounded-3xl p-6 flex items-start gap-4 shadow-xs">
+        <div class="w-12 h-12 rounded-2xl bg-orange-50 text-[#F26522] flex items-center justify-center text-xl shrink-0">📈</div>
+        <div>
+          <h3 class="font-extrabold text-lg">A clearer view of growth.</h3>
+          <p class="text-xs sm:text-sm text-gray-500 mt-1 leading-relaxed">Understand visits, requests, repeat users and event delivery. Every page gets its own performance report.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DARK COMPARISON SECTION ("SEE IT IN 8 SECONDS" - Exact IMG_2702 Style) -->
+  <section class="bg-[#111111] text-white py-20 px-5 my-8">
+    <div class="max-w-4xl mx-auto text-center">
+      <div class="text-[11px] font-extrabold tracking-[0.2em] text-[#F26522] uppercase mb-3">SEE IT IN 8 SECONDS</div>
+      <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight mb-4">
+        Same ads. Same clicks.<br>Real conversions.
+      </h2>
+      <p class="text-gray-400 text-sm md:text-base max-w-xl mx-auto mb-10">
+        A normal pixel tells Meta every button click is a conversion. MyMeta tells Meta only about people who actually asked to join.
+      </p>
+
+      <!-- Visual Flow Diagram Card -->
+      <div class="bg-[#F9F8F4] text-gray-900 rounded-3xl p-6 md:p-8 mb-6 shadow-2xl">
+        <div class="text-xs font-extrabold text-gray-700 mb-5">Normal pixel: every click = "conversion" vs Smart Tracking: only real joins</div>
+        <div class="grid md:grid-cols-3 gap-4 text-left">
+          <div class="bg-white rounded-2xl p-4 border border-gray-200 shadow-xs">
+            <div class="text-[10px] font-bold text-blue-600 uppercase mb-2">Meta Ads Manager</div>
+            <div class="text-3xl font-extrabold text-red-600">132</div>
+            <div class="text-[11px] text-gray-500 mt-1">Fake button clicks reported as conversions on normal pixel.</div>
+          </div>
+          <div class="bg-white rounded-2xl p-4 border border-orange-200 shadow-xs flex flex-col justify-between">
+            <div class="text-[10px] font-bold text-[#F26522] uppercase mb-2">Smart Landing Page</div>
+            <div class="font-extrabold text-sm mb-2">Daily Market Signals. Join Free.</div>
+            <div class="bg-sky-500 text-white text-center text-xs font-bold py-2 rounded-xl">Join Telegram Channel</div>
+          </div>
+          <div class="bg-white rounded-2xl p-4 border border-green-200 shadow-xs">
+            <div class="text-[10px] font-bold text-green-600 uppercase mb-2">Telegram Bot + CAPI</div>
+            <div class="text-3xl font-extrabold text-green-600">100%</div>
+            <div class="text-[11px] text-gray-500 mt-1">Only verified Join Requests fire Server-Side Subscribe event.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom 2 Comparison Boxes -->
+      <div class="grid grid-cols-2 gap-4 max-w-2xl mx-auto">
+        <div class="bg-red-950/60 border border-red-800/70 rounded-2xl p-5 text-center">
+          <div class="text-[10px] font-extrabold tracking-wider text-red-300 uppercase mb-2">NORMAL META PIXEL</div>
+          <div class="text-lg sm:text-xl font-extrabold text-red-200">132 conversions</div>
+          <div class="text-sm font-bold text-red-400">50 joins</div>
+        </div>
+        <div class="bg-green-950/60 border border-green-700/70 rounded-2xl p-5 text-center">
+          <div class="text-[10px] font-extrabold tracking-wider text-green-300 uppercase mb-2">SMART TRACKING SYSTEM</div>
+          <div class="text-lg sm:text-xl font-extrabold text-green-200">132 conversions</div>
+          <div class="text-sm font-bold text-green-400">132 joins ✓</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3 STEPS SECTION (Exact IMG_2704 Style) -->
+  <section class="max-w-3xl mx-auto px-5 py-14">
+    <div class="text-center mb-10">
+      <div class="text-[11px] font-extrabold tracking-[0.2em] text-[#F26522] uppercase mb-2">HOW IT WORKS</div>
+      <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight">Launch a tracked page in 3 steps</h2>
+    </div>
+    <div class="space-y-4">
+      <div class="bg-white border border-gray-200 rounded-3xl p-6 flex justify-between items-start gap-4">
+        <div>
+          <div class="text-[11px] font-extrabold text-[#F26522] uppercase mb-1">STEP 1</div>
+          <h3 class="font-extrabold text-lg">Claim your link & domain</h3>
+          <p class="text-xs sm:text-sm text-gray-500 mt-1">Get yourbrand.yourdomain.com, or connect your own custom domain with free HTTPS.</p>
+        </div>
+        <span class="w-8 h-8 rounded-full bg-[#F26522] text-white flex items-center justify-center font-bold shrink-0">✓</span>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-3xl p-6 flex justify-between items-start gap-4">
+        <div>
+          <div class="text-[11px] font-extrabold text-[#F26522] uppercase mb-1">STEP 2</div>
+          <h3 class="font-extrabold text-lg">Build with ready templates or HTML</h3>
+          <p class="text-xs sm:text-sm text-gray-500 mt-1">Customize your text, images and Telegram Join button, or upload your own index.html. Built for mobile, no coding.</p>
+        </div>
+        <span class="w-8 h-8 rounded-full bg-[#F26522] text-white flex items-center justify-center font-bold shrink-0">✓</span>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-3xl p-6 flex justify-between items-start gap-4">
+        <div>
+          <div class="text-[11px] font-extrabold text-[#F26522] uppercase mb-1">STEP 3</div>
+          <h3 class="font-extrabold text-lg">Track real Telegram joins</h3>
+          <p class="text-xs sm:text-sm text-gray-500 mt-1">Join requests, not clicks, go to Meta through the Conversions API. Auto-approve requests and see every page in your growth dashboard.</p>
+        </div>
+        <span class="w-8 h-8 rounded-full bg-[#F26522] text-white flex items-center justify-center font-bold shrink-0">✓</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICING SECTION (Monthly/Yearly Toggle + 4 Cards) -->
+  <section id="pricing" class="max-w-6xl mx-auto px-5 py-16">
+    <div class="text-center mb-10">
+      <span class="inline-block bg-orange-50 border border-orange-200/70 text-[#F26522] text-xs font-bold px-4 py-1.5 rounded-full mb-4">💡 Simple & Transparent Pricing</span>
+      <h2 class="text-3xl md:text-5xl font-extrabold tracking-tight leading-tight">
+        Start Free.<br>Upgrade When <span class="text-[#F26522] underline decoration-[#F26522]">Your Ads Scale.</span>
+      </h2>
+      <p class="text-gray-500 text-sm mt-3">Create landing pages, track real Telegram joins, and grow your community.</p>
+
+      <div class="inline-flex items-center bg-white border border-gray-200 p-1 rounded-full mt-6 shadow-xs text-xs font-bold">
+        <button id="billMonthly" onclick="setBilling('monthly')" class="px-5 py-2 rounded-full bg-gray-950 text-white transition">Monthly</button>
+        <button id="billYearly" onclick="setBilling('yearly')" class="px-5 py-2 rounded-full text-gray-600 transition">Yearly <span class="text-[#F26522] ml-1">Save 20%</span></button>
+      </div>
+    </div>
+
+    <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
+      <div class="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col justify-between relative">
+        <span class="absolute top-5 right-5 bg-[#F26522] text-white text-[10px] font-bold px-2.5 py-1 rounded-full">Launch Offer</span>
+        <div>
+          <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-lg mb-4">🎁</div>
+          <h3 class="text-xl font-extrabold">Free</h3>
+          <p class="text-xs text-gray-500 mt-1">Try MyMeta at no cost.</p>
+          <div class="text-4xl font-extrabold my-5">₹0</div>
+          <ul class="text-xs space-y-2.5 text-gray-700 font-medium">
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> 3 live pages</li>
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> All free templates</li>
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> Smart Tracking on 2 pages</li>
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> No credit card needed</li>
+          </ul>
+        </div>
+        <a href="/app?signup=1" class="mt-7 block text-center bg-gray-950 text-white py-3 rounded-2xl text-xs font-bold">Claim Free Offer →</a>
+      </div>
+
+      <div class="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col justify-between">
+        <div>
+          <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-lg mb-4">⚡</div>
+          <h3 class="text-xl font-extrabold">Starter</h3>
+          <p class="text-xs text-gray-500 mt-1">For individuals getting started.</p>
+          <div class="flex items-center gap-2 mt-4"><span class="text-sm text-gray-400 line-through">₹7,999</span><span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Save 75%</span></div>
+          <div class="text-4xl font-extrabold mb-5 mt-1"><span id="p_starter">₹1,999</span><span class="text-xs font-normal text-gray-400"> /mo</span></div>
+          <ul class="text-xs space-y-2.5 text-gray-700 font-medium">
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> 7 live pages</li>
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> Smart Tracking on 2 pages</li>
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> Custom domain</li>
+          </ul>
+        </div>
+        <a href="https://t.me/millrun" target="_blank" class="mt-7 block text-center border border-gray-300 hover:bg-gray-50 py-3 rounded-2xl text-xs font-bold">Choose Starter</a>
+      </div>
+
+      <div class="bg-[#FFF9F6] p-6 rounded-3xl border-2 border-[#F26522] shadow-xl flex flex-col justify-between relative">
+        <span class="absolute top-5 right-5 bg-[#F26522] text-white text-[10px] font-bold px-3 py-1 rounded-full">Recommended</span>
+        <div>
+          <div class="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-lg mb-4">📈</div>
+          <h3 class="text-xl font-extrabold">Growth</h3>
+          <p class="text-xs text-gray-500 mt-1">For serious growth & higher volume.</p>
+          <div class="flex items-center gap-2 mt-4"><span class="text-sm text-gray-400 line-through">₹14,999</span><span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Save 66%</span></div>
+          <div class="text-4xl font-extrabold mb-5 mt-1"><span id="p_growth">₹4,999</span><span class="text-xs font-normal text-gray-400"> /mo</span></div>
+          <ul class="text-xs space-y-2.5 text-gray-700 font-medium">
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> 20 live pages</li>
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> Smart Tracking on 8 pages</li>
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> Priority support</li>
+          </ul>
+        </div>
+        <a href="https://t.me/millrun" target="_blank" class="mt-7 block text-center bg-[#F26522] hover:bg-[#d95314] text-white py-3 rounded-2xl text-xs font-bold shadow-md">Choose Growth →</a>
+      </div>
+
+      <div class="bg-white p-6 rounded-3xl border border-gray-200 flex flex-col justify-between">
+        <div>
+          <div class="w-10 h-10 bg-orange-50 rounded-xl flex items-center justify-center text-lg mb-4">💼</div>
+          <h3 class="text-xl font-extrabold">Business Pro</h3>
+          <p class="text-xs text-gray-500 mt-1">For teams, brands & agencies.</p>
+          <div class="flex items-center gap-2 mt-4"><span class="text-sm text-gray-400 line-through">₹34,999</span><span class="bg-green-100 text-green-700 text-[10px] font-bold px-2 py-0.5 rounded-full">Save 57%</span></div>
+          <div class="text-4xl font-extrabold mb-5 mt-1"><span id="p_pro">₹14,999</span><span class="text-xs font-normal text-gray-400"> /mo</span></div>
+          <ul class="text-xs space-y-2.5 text-gray-700 font-medium">
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> Unlimited pages (fair use)</li>
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> Smart Tracking on 50 pages</li>
+            <li><span class="text-[#F26522] font-bold mr-1">✓</span> For agencies</li>
+          </ul>
+        </div>
+        <a href="https://t.me/millrun" target="_blank" class="mt-7 block text-center border border-gray-300 hover:bg-gray-50 py-3 rounded-2xl text-xs font-bold">Choose Pro</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Accordion ("Quick answers") -->
+  <section class="max-w-3xl mx-auto px-5 py-14">
+    <div class="text-center mb-8">
+      <div class="text-xs font-bold text-[#F26522] uppercase tracking-wider mb-1">FAQ</div>
+      <h2 class="text-3xl font-extrabold">Quick answers</h2>
+    </div>
+    <div class="space-y-3">
+      <div class="bg-white border border-gray-200 rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex justify-between items-center font-bold text-sm"><span>What is included for free?</span><span class="text-[#F26522] text-lg faq-icon">−</span></div>
+        <p class="text-xs text-gray-500 mt-3 leading-relaxed faq-ans">Smart Tracking free on 2 pages, all free templates, visual builder, and custom HTML upload. No credit card required.</p>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex justify-between items-center font-bold text-sm"><span>Does a button click count as a Telegram join?</span><span class="text-[#F26522] text-lg faq-icon">+</span></div>
+        <p class="hidden text-xs text-gray-500 mt-3 leading-relaxed faq-ans">No! Unlike normal pixels, MyMeta only fires the Meta Conversions API event when the user actually sends a Join Request inside Telegram.</p>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex justify-between items-center font-bold text-sm"><span>I already have a page. Can I use only the tracking?</span><span class="text-[#F26522] text-lg faq-icon">+</span></div>
+        <p class="hidden text-xs text-gray-500 mt-3 leading-relaxed faq-ans">Yes! Turn on HTML Page mode, upload your index.html, and place our Smart Tracking Link in your CTA button href.</p>
+      </div>
+      <div class="bg-white border border-gray-200 rounded-2xl p-5 cursor-pointer" onclick="toggleFaq(this)">
+        <div class="flex justify-between items-center font-bold text-sm"><span>Can I decide whether repeat requests count?</span><span class="text-[#F26522] text-lg faq-icon">+</span></div>
+        <p class="hidden text-xs text-gray-500 mt-3 leading-relaxed faq-ans">Yes, there is a dedicated "Count repeat requests" toggle when connecting your Telegram channel.</p>
+      </div>
+    </div>
+
+    <div class="text-center mt-10">
+      <a href="/app?signup=1" class="inline-block bg-[#F26522] hover:bg-[#d95314] text-white font-bold px-8 py-4 rounded-2xl text-sm shadow-lg shadow-orange-500/25">Start Smart Tracking →</a>
+    </div>
+
+    <!-- Instant Support Dark Card -->
+    <div class="bg-[#111111] text-white rounded-3xl p-8 text-center mt-10 shadow-xl">
+      <h3 class="text-xl font-extrabold mb-5">Instant support</h3>
+      <div class="flex justify-center gap-4">
+        <a href="https://t.me/millrun" target="_blank" class="w-12 h-12 rounded-full bg-sky-500 flex items-center justify-center text-xl shadow-lg hover:scale-105 transition" title="Telegram">✈️</a>
+        <a href="https://t.me/millrun" target="_blank" class="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center text-xl shadow-lg hover:scale-105 transition" title="WhatsApp">💬</a>
+        <a href="/app" class="w-12 h-12 rounded-full bg-[#F26522] flex items-center justify-center text-xl shadow-lg hover:scale-105 transition" title="Dashboard">⚡</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-gray-200 py-10 mt-8">
+    <div class="max-w-6xl mx-auto px-5 flex flex-wrap justify-between items-center gap-4 text-xs text-gray-500">
+      <div class="font-extrabold text-lg text-gray-900">MyMeta<span class="text-[#F26522]">.</span></div>
+      <div class="flex gap-5 font-semibold">
+        <a href="#pricing">Pricing</a>
+        <a href="/app">Dashboard</a>
+        <a href="https://t.me/millrun" target="_blank" class="text-[#F26522]">Telegram (@millrun)</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Floating Telegram Button -->
+  <a href="https://t.me/millrun" target="_blank" class="fixed bottom-5 right-5 w-13 h-13 p-3.5 rounded-full bg-sky-500 text-white shadow-2xl hover:scale-110 transition z-40 text-xl">✈️</a>
+
+  <script>
+    function setBilling(mode) {
+      document.getElementById('billMonthly').className = mode === 'monthly' ? 'px-5 py-2 rounded-full bg-gray-950 text-white transition' : 'px-5 py-2 rounded-full text-gray-600 transition';
+      document.getElementById('billYearly').className = mode === 'yearly' ? 'px-5 py-2 rounded-full bg-gray-950 text-white transition' : 'px-5 py-2 rounded-full text-gray-600 transition';
+      document.getElementById('p_starter').innerText = mode === 'yearly' ? '₹1,599' : '₹1,999';
+      document.getElementById('p_growth').innerText = mode === 'yearly' ? '₹3,999' : '₹4,999';
+      document.getElementById('p_pro').innerText = mode === 'yearly' ? '₹11,999' : '₹14,999';
+    }
+    function toggleFaq(el) {
+      const ans = el.querySelector('.faq-ans');
+      const icon = el.querySelector('.faq-icon');
+      const isHidden = ans.classList.contains('hidden');
+      ans.classList.toggle('hidden', !isHidden);
+      icon.innerText = isHidden ? '−' : '+';
+    }
+  </script>
+</body>
+</html>
